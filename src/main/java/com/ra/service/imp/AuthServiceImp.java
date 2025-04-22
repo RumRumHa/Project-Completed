@@ -1,0 +1,84 @@
+package com.ra.service.imp;
+
+import com.ra.exception.CustomException;
+import com.ra.mapper.UserMapper;
+import com.ra.model.dto.request.SignupRequestDTO;
+import com.ra.model.dto.request.UserRequestDTO;
+import com.ra.model.entity.ERole;
+import com.ra.model.entity.User;
+import com.ra.repository.UserRepository;
+import com.ra.service.AuthService;
+import com.ra.service.CloudinaryService;
+import com.ra.service.RoleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.Optional;
+
+@Service
+public class AuthServiceImp implements AuthService {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @Override
+    public boolean existsByUsernameOrEmail(String username, String email) {
+        return userRepository.existsByUsername(username) || userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public void saveUser(SignupRequestDTO signupRequestDTO) {
+        User user = new User();
+        user.setUsername(signupRequestDTO.getUsername());
+        user.setEmail(signupRequestDTO.getEmail());
+        user.setPassword(encoder.encode(signupRequestDTO.getPassword()));
+        user.setFullname(signupRequestDTO.getFullname());
+        user.setPhone(signupRequestDTO.getPhone());
+        user.setAddress(signupRequestDTO.getAddress());
+
+        // Tải lên hình ảnh đại diện và lưu URL vào trường avatar
+        if (signupRequestDTO.getAvatar() != null && !signupRequestDTO.getAvatar().isEmpty()) {
+            String avatarUrl = cloudinaryService.uploadFile(signupRequestDTO.getAvatar());
+            user.setAvatar(avatarUrl);
+        }
+
+        user.setStatus(true);
+        user.setIsDeleted(false);
+        user.setRoles(Collections.singleton(roleService.findByRoleName(ERole.USER)));
+        user.setCreatedAt(new Date());
+        user.setUpdatedAt(new Date());
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public void registerUser(SignupRequestDTO dto) {
+        if (existsByUsernameOrEmail(dto.getUsername(), dto.getEmail())) {
+            throw new CustomException("Username or Email is already taken");
+        }
+        saveUser(dto);
+    }
+
+    @Override
+    public User authenticateUser(String username, String password) {
+        User user = userRepository.findByUsername(username);
+
+        // So sánh password người dùng nhập với mật khẩu mã hóa trong DB
+        if (!encoder.matches(password, user.getPassword())) {
+            throw new CustomException("Invalid username or password");
+        }
+
+        return user;
+    }
+}

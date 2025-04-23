@@ -1,0 +1,26 @@
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-container {
+    padding: 24px;
+}
+
+.report-container-row {
+    margin-bottom: 16px;
+}
+
+.report-container-row:last-child {
+    margin-bottom: 0;
+}
+
+.report-date-picker {
+    width: 100%;
+    max-width: 400px;
+}
+
+.report-card {
+    height: 400px;
+}

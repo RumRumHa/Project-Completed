@@ -1,0 +1,178 @@
+:root {
+    --primaryColor: #1890ff;
+    --lightBg: #f5f7fa;
+    --darkBg: #001529;
+}
+.admin-layout {
+    min-height: 100vh;
+    background-color: var(--lightBg);
+}
+
+.admin-sider {
+    background-color: var(--darkBg);
+    box-shadow: 2px 0 8px #0000001a;
+    position: fixed;
+    height: calc(100vh - 48px);
+    z-index: 100;
+    transition: all 0.2s;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        background: #ffffff1a;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #ffffff33;
+        border-radius: 3px;
+        &:hover {
+            background-color: #ffffff4d;
+        }
+    }
+}
+
+.admin-sider-header {
+    padding: 24px 16px;
+    text-align: center;
+    border-bottom: 1px solid #ffffff1a;
+}
+
+.admin-sider-avatar {
+    border: 2px solid var(--primaryColor);
+    box-shadow: 0 0 12px #1890ffb3;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.admin-sider-title {
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+    text-shadow: 0 2px 4px #00000033;
+}
+
+.admin-sider-subtitle {
+    color: #fff;
+    font-size: 14px;
+}
+
+.admin-sider-menu {
+    background-color: transparent;
+    border-right: 0;
+    padding: 16px 0;
+}
+
+.admin-layout-content-header {
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 4px #0000001a;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: 64px;
+}
+
+.admin-layout-content-header-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-left: 20px;
+}
+
+.admin-user-info {
+    cursor: pointer;
+}
+
+.admin-user-info-name {
+    font-weight: 500;
+}
+
+.admin-layout-content {
+    margin: 24px 16px;
+    padding: 24px;
+    min-height: 280px;
+}
+
+.content-container {
+    background-color: none;
+}
+
+.content-content {
+    padding: 24px;
+}
+
+.content-pagination {
+    margin-top: 16px;
+    text-align: right;
+}
+
+.eye-icon {
+    color: #1677ff;
+}
+
+.edit-icon, .lock-icon {
+    color: #52c41a;
+}
+
+.delete-icon, .unlock-icon {
+    color: #ff4d4f;
+}
+
+.content-filter {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-input {
+    width: 300px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-buttons-order {
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.modal-avatar {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.modal-edit {
+    text-align: right;
+    margin-top: 16px;
+}
+
+.modal-edit-input {
+    width: 100%;
+}
+
+.modal-avatar-text {
+    margin-top: 8px;
+}
+
+.modal-edit-button {
+    margin-right: 8px;
+}
+
+.modal-edit-images {
+    margin-top: 24px;
+}
+
+.modal-edit-images-title {
+    margin-bottom: 8px;
+}
+
+.modal-edit-images-image {
+    border: 1px solid #d9d9d9;
+}

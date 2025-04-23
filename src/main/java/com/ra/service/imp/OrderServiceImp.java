@@ -82,6 +82,12 @@ public class OrderServiceImp implements OrderService {
         if (!Arrays.stream(EOrderStatus.values()).map(Enum::name).anyMatch(status.toUpperCase()::equals)) {
             throw new CustomException("Invalid status value");
         }
+        if (order.getStatus() == EOrderStatus.SUCCESS || order.getStatus() == EOrderStatus.CANCEL) {
+            throw new CustomException("Order status cannot be updated to SUCCESS or CANCEL");
+        }
+        if (order.getStatus() == EOrderStatus.DELIVERY && status.equalsIgnoreCase("SUCCESS")) {
+            order.setReceivedAt(new Date(System.currentTimeMillis()));
+        }
         EOrderStatus orderStatus = EOrderStatus.valueOf(status.toUpperCase());
         order.setStatus(orderStatus);
         orderRepository.save(order);

@@ -88,7 +88,7 @@ public class CategoryServiceImp implements CategoryService {
     public void deleteCategory(Long categoryId) {
         try {
             if (productRepository.existsByCategoryCategoryId(categoryId)) {
-                throw new CustomException("Category contains products and cannot be deleted.");
+                throw new CustomException("Không thể xóa danh mục có chứa sản phẩm!");
             }
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new CustomException("Category not found"));

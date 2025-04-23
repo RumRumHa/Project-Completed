@@ -31,4 +31,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                     "OR LOWER(remove_accents(description)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')))",
             nativeQuery = true)
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+    Page<Product> searchProductsByProductNameContaining(String productName, Pageable pageable);
+    Page<Product> findAllByProductNameContaining(String productName, Pageable pageable);
 }

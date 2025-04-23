@@ -45,71 +45,50 @@ public class WishListServiceImp implements WishListService {
     @Override
     @Transactional
     public WishListResponseDTO addToWishList(Long productId) {
-        try {
-            User user = getCurrentUser();
-            Long userId = user.getUserId();
+        User user = getCurrentUser();
+        Long userId = user.getUserId();
 
-            Optional<Product> productOptional = productRepository.findById(productId);
-            if (productOptional.isEmpty()) {
-                throw new CustomException("Product not found");
-            }
-            Product product = productOptional.get();
-            if (wishListRepository.existsByUserUserIdAndProductProductId(userId, productId)) {
-                throw new CustomException("Product already exists in wish list");
-            }
-
-            // Thêm sản phẩm vào danh sách yêu thích
-            WishList wishList = new WishList();
-            wishList.setUser(user);
-            wishList.setProduct(product);
-            wishList.setCreatedAt(new Date());
-
-            //Lưu Wishlist vào DB
-            WishList savedWishList = wishListRepository.save(wishList);
-
-            return WishListMapper.INSTANCE.toResponseDTO(savedWishList);
-        } catch (CustomException ce) {
-            throw ce;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException("An unexpected error occurred while adding to wish list");
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isEmpty()) {
+            throw new CustomException("Product not found");
         }
+        Product product = productOptional.get();
+        if (wishListRepository.existsByUserUserIdAndProductProductId(userId, productId)) {
+            throw new CustomException("Product already exists in wish list");
+        }
+
+        // Thêm sản phẩm vào danh sách yêu thích
+        WishList wishList = new WishList();
+        wishList.setUser(user);
+        wishList.setProduct(product);
+        wishList.setCreatedAt(new Date());
+
+        //Lưu Wishlist vào DB
+        WishList savedWishList = wishListRepository.save(wishList);
+
+        return WishListMapper.INSTANCE.toResponseDTO(savedWishList);
     }
 
     // Phương thức lấy danh sách yêu thích
     @Override
     public List<WishListResponseDTO> getWishList() {
-        try {
-            User user = getCurrentUser();
-            Long userId = user.getUserId();
+        User user = getCurrentUser();
+        Long userId = user.getUserId();
 
-            List<WishList> wishLists = wishListRepository.findByUserUserId(userId);
-            return wishLists.stream()
-                    .map(WishListMapper.INSTANCE::toResponseDTO)
-                    .collect(Collectors.toList());
-        } catch (CustomException ce) {
-            throw ce;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException("An unexpected error occurred while retrieving wish list");
-        }
+        List<WishList> wishLists = wishListRepository.findByUserUserId(userId);
+        return wishLists.stream()
+                .map(WishListMapper.INSTANCE::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // Phương thức xóa yêu thích
     @Override
     public void deleteWishList(Long wishListId) {
-        try {
-            User user = getCurrentUser();
-            Long userId = user.getUserId();
-            if (!wishListRepository.existsByUserUserIdAndWishListId(userId, wishListId)) {
-                throw new CustomException("Wish list not found");
-            }
-            wishListRepository.deleteById(wishListId);
-        } catch (CustomException ce) {
-            throw ce;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException("An unexpected error occurred while deleting wish list");
+        User user = getCurrentUser();
+        Long userId = user.getUserId();
+        if (!wishListRepository.existsByUserUserIdAndWishListId(userId, wishListId)) {
+            throw new CustomException("Wish list not found");
         }
+        wishListRepository.deleteById(wishListId);
     }
 }

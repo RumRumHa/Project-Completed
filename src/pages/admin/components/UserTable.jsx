@@ -1,4 +1,5 @@
-import { Table, Space, Button, Popconfirm, Tag } from "antd";
+import { Space, Button, Popconfirm, Tag } from "antd";
+import CommonTable from "./CommonTable";
 import { DeleteOutlined, EditOutlined, EyeOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
 
 const UserTable = ({ columns, data, loading, page, limit, onEdit, onDelete, onView, onToggleStatus }) => {
@@ -57,13 +58,12 @@ const UserTable = ({ columns, data, loading, page, limit, onEdit, onDelete, onVi
   ];
 
   return (
-    <Table
+    <CommonTable
       columns={columns || defaultColumns}
       dataSource={data || []}
       rowKey="userId"
       pagination={false}
       loading={loading}
-      bordered
     />
   );
 };

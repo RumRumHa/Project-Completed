@@ -1,12 +1,12 @@
-import React from "react";
-import { Modal, Descriptions, Button, Space, Select, Tag, Table } from "antd";
+import React, { useEffect, useState } from "react";
+import BaseModal from "./components/BaseModal";
+import ModalOrderInfo from "./components/ModalOrderInfo";
+import ModalOrderItems from "./components/ModalOrderItems";
+import ModalOrderStatusControl from "./components/ModalOrderStatusControl";
 import { useDispatch } from "react-redux";
 import { updateOrderStatus } from "../../redux/reducers/admin/orderSlice";
 import { toast } from "react-toastify";
-import { OrderStatus, OrderStatusLabels, OrderStatusNotes } from "../../enums/OrderStatus";
-import { formatPrice } from "../../utils/formatPrice";
-
-const { Option } = Select;
+import { OrderStatusNotes } from "../../enums/OrderStatus";
 
 const ModalOrder = ({ 
   open, 
@@ -16,147 +16,69 @@ const ModalOrder = ({
   isView
 }) => {
   const dispatch = useDispatch();
-  const [data, setData] = React.useState(initialData);
+  const [data, setData] = useState(initialData);
+  const [loading, setLoading] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setData(initialData);
   }, [initialData]);
 
   const handleStatusChange = async (status) => {
     try {
+      setLoading(true);
       const note = OrderStatusNotes[status];
-      
       await dispatch(updateOrderStatus({ 
         orderId: data.orderId, 
         status,
         note
       })).unwrap();
-      
-      setData(prev => ({
-        ...prev,
-        status,
-        note
-      }));
-      
+      setData(prev => ({ ...prev, status, note }));
       toast.success("Cập nhật trạng thái đơn hàng thành công!");
       onSuccess?.();
     } catch (error) {
       toast.error(error?.message || "Lỗi khi cập nhật trạng thái đơn hàng");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const orderItemsColumns = [
-    {
-      title: 'STT',
-      dataIndex: 'stt',
-      key: 'stt',
-      width: 50,
-      align: 'center',
-      render: (_, __, index) => index + 1,
-    },
-    {
-      title: 'Sản phẩm',
-      dataIndex: 'productName',
-      key: 'productName',
-      align: 'left',
-    },
-    {
-      title: 'Số lượng',
-      dataIndex: 'orderQuantity',
-      key: 'orderQuantity',
-      align: 'center',
-      width: 100,
-    },
-    {
-      title: 'Đơn giá',
-      dataIndex: 'unitPrice',
-      key: 'unitPrice',
-      align: 'right',
-      width: 150,
-      render: (price) => (
-        formatPrice(price)
-      ),
-    },
-    {
-      title: 'Thành tiền',
-      dataIndex: 'total',
-      key: 'total',
-      align: 'right',
-      width: 150,
-      render: (_, record) => (
-        formatPrice(record.orderQuantity * record.unitPrice)
-      ),
-    },
-  ];
-
-  const renderView = () => {
-    if (!data) {
-      return <div>Đang tải dữ liệu...</div>;
-    }
-
+  if (!data) {
     return (
-      <div>
-        <Descriptions bordered column={2}>
-          <Descriptions.Item label="Mã đơn hàng">{data.serialNumber}</Descriptions.Item>
-          <Descriptions.Item label="Ngày đặt hàng">
-            {new Date(data.createdAt).toLocaleString('vi-VN')}
-          </Descriptions.Item>
-          <Descriptions.Item label="Ngày nhận hàng">
-            {data.receivedAt ? new Date(data.receivedAt).toLocaleString('vi-VN') : 'Chưa nhận hàng'}
-          </Descriptions.Item>
-          <Descriptions.Item label="Khách hàng">{data.userName}</Descriptions.Item>
-          <Descriptions.Item label="Người nhận">{data.receiveName}</Descriptions.Item>
-          <Descriptions.Item label="Số điện thoại">{data.receivePhone}</Descriptions.Item>
-          <Descriptions.Item label="Địa chỉ nhận hàng" span={2}>{data.receiveAddress}</Descriptions.Item>
-          <Descriptions.Item label="Ghi chú" span={2}>{data.note || 'Không có ghi chú'}</Descriptions.Item>
-          <Descriptions.Item label="Trạng thái">
-            <Select
-              value={data.status}
-              onChange={handleStatusChange}
-              style={{ width: 200 }}
-              disabled={isView}
-            >
-              {Object.entries(OrderStatus).map(([value]) => (
-                <Option key={value} value={value}>
-                  {OrderStatusLabels[value]}
-                </Option>
-              ))}
-            </Select>
-          </Descriptions.Item>
-          <Descriptions.Item label="Tổng tiền">
-            <Tag color="blue">
-              {formatPrice(data.totalPrice)}
-            </Tag>
-          </Descriptions.Item>
-        </Descriptions>
-
-        <div style={{ marginTop: 24 }}>
-          <h3>Chi tiết đơn hàng</h3>
-          <Table
-            columns={orderItemsColumns}
-            dataSource={data.orderDetails}
-            rowKey="orderDetailId"
-            pagination={false}
-            bordered
-          />
-        </div>
-      </div>
+      <BaseModal
+        title="👁️ Chi tiết đơn hàng"
+        open={open}
+        onCancel={onCancel}
+        loading={true}
+        width={800}
+        bodyStyle={{ padding: 24 }}
+      >
+        <div>Đang tải dữ liệu...</div>
+      </BaseModal>
     );
-  };
+  }
 
   return (
-    <Modal
+    <BaseModal
       title="👁️ Chi tiết đơn hàng"
       open={open}
       onCancel={onCancel}
-      footer={null}
-      centered
+      loading={loading}
       width={800}
       bodyStyle={{ padding: 24 }}
     >
-      {renderView()}
-    </Modal>
+      <ModalOrderInfo data={data} />
+      <div style={{ margin: '24px 0 8px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontWeight: 500 }}>Trạng thái:</span>
+        <ModalOrderStatusControl
+          status={data.status}
+          onChange={handleStatusChange}
+          disabled={isView || loading}
+        />
+      </div>
+      <h3 style={{ marginTop: 24 }}>Chi tiết đơn hàng</h3>
+      <ModalOrderItems items={data.orderDetails} />
+    </BaseModal>
   );
 };
 
-export default ModalOrder; 
+export default ModalOrder;

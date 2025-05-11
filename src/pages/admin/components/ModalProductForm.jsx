@@ -9,15 +9,11 @@ const ModalProductForm = ({
   form,
   editData,
   categories,
-  mainImageFile,
-  additionalImageFiles,
-  beforeUpload,
-  handleMainImageChange,
-  handleAdditionalImagesChange,
+  mainImageProps,
+  additionalImagesProps,
   handleCancel,
   onFinish,
-  loading,
-  setAdditionalImageFiles
+  loading
 }) => (
   <Form
     form={form}
@@ -29,7 +25,7 @@ const ModalProductForm = ({
       name="sku"
       rules={[{ required: true, message: 'Vui lòng nhập mã sản phẩm!' }]}
     >
-      <Input placeholder="Nhập mã sản phẩm" />
+      <Input placeholder="Nhập mã sản phẩm" disabled={!!editData} />
     </Form.Item>
     <Form.Item
       label="Tên sản phẩm"
@@ -91,17 +87,17 @@ const ModalProductForm = ({
     >
       <Upload
         listType="picture-card"
-        beforeUpload={beforeUpload}
-        onChange={handleMainImageChange}
+        beforeUpload={mainImageProps.beforeUpload}
+        onChange={mainImageProps.handleMainImageChange}
         accept="image/*"
-        fileList={mainImageFile ? [mainImageFile] : []}
+        fileList={mainImageProps.mainImageFile ? [mainImageProps.mainImageFile] : []}
         maxCount={1}
         onRemove={() => {
-          setAdditionalImageFiles([]);
+          mainImageProps.setMainImageFile(null);
           return true;
         }}
       >
-        {!mainImageFile && (
+        {!mainImageProps.mainImageFile && (
           <div>
             <UploadOutlined />
             <div className="modal-avatar-text">Tải lên</div>
@@ -118,18 +114,18 @@ const ModalProductForm = ({
     >
       <Upload
         listType="picture-card"
-        beforeUpload={beforeUpload}
-        onChange={handleAdditionalImagesChange}
+        beforeUpload={additionalImagesProps.beforeUpload}
+        onChange={additionalImagesProps.handleAdditionalImagesChange}
         multiple
         accept="image/*"
-        fileList={additionalImageFiles}
+        fileList={additionalImagesProps.additionalImageFiles}
         onRemove={file => {
-          const newFiles = additionalImageFiles.filter(f => f.uid !== file.uid);
-          setAdditionalImageFiles(newFiles);
+          const newFiles = additionalImagesProps.additionalImageFiles.filter(f => f.uid !== file.uid);
+          additionalImagesProps.setAdditionalImageFiles(newFiles);
           return false;
         }}
       >
-        {additionalImageFiles.length < 5 && (
+        {(!additionalImagesProps.additionalImageFiles || additionalImagesProps.additionalImageFiles.length < 5) && (
           <div>
             <PlusOutlined />
             <div className="modal-avatar-text">Tải lên</div>

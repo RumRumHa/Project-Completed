@@ -1,7 +1,7 @@
 import { Layout, Card, Spin, Pagination, Button } from "antd";
 import ModalUser from "./ModalUser";
 import useUserLogic from "./hooks/useUserLogic";
-import UserFilter from "./components/UserFilter";
+import CommonFilter from "./components/CommonFilter";
 import UserTable from "./components/UserTable";
 import '../../styles/admin/index.css';
 const { Content } = Layout;
@@ -11,7 +11,7 @@ function Users() {
     <Layout className="content-container">
       <Content className="content-content">
         <Card title="Quản lý người dùng">
-          <UserFilter {...logic.filterProps} rightExtra={<Button type="primary" onClick={logic.handleAdd}>Thêm người dùng</Button>} />
+          <CommonFilter {...logic.filterProps} rightExtra={<Button type="primary" onClick={logic.handleAdd}>Thêm người dùng</Button>} />
           <Spin spinning={logic.loading}>
             <UserTable {...logic.tableProps} />
           </Spin>

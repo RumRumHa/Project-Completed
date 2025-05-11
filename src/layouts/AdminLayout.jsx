@@ -151,7 +151,7 @@ function AdminLayout() {
           </div>
           
           <Space size="large">
-            <Dropdown overlay={userMenu} placement="bottomRight">
+            <Dropdown menu={userMenu} placement="bottomRight">
               <Space className="admin-user-info">
                 <Avatar 
                   size="small" 

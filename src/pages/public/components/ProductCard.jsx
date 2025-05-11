@@ -17,9 +17,6 @@ function ProductCard({ product }) {
   const wishlist = useSelector(state => state.account.wishlist);
   const isInWishlist = wishlist.some(item => item.productId === product.productId);
   const token = Cookies.get('token');
-
-
-    console.log("ww", wishlist);
   const handleToggleWishlist = async () => {
     if (!token) {
       toast.info('Vui lòng đăng nhập để thêm vào danh sách yêu thích');

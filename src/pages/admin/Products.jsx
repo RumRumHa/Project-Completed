@@ -1,5 +1,5 @@
 import { Layout, Card, Spin, Pagination, Button } from "antd";
-import ProductFilter from "./components/ProductFilter";
+import CommonFilter from "./components/CommonFilter";
 import ProductTable from "./components/ProductTable";
 import ModalProduct from "./ModalProduct";
 import useProductLogic from "./hooks/useProductLogic";
@@ -14,7 +14,7 @@ const Products = () => {
     <Layout className="content-container">
       <Content className="content-content">
         <Card title="Quản lý sản phẩm">
-          <ProductFilter {...logic.filterProps} rightExtra={<Button type="primary" onClick={logic.handleAdd}>Thêm sản phẩm</Button>} />
+          <CommonFilter {...logic.filterProps} rightExtra={<Button type="primary" onClick={logic.handleAdd}>Thêm sản phẩm</Button>} />
           <Spin spinning={logic.loading}>
             <ProductTable {...logic.tableProps} />
           </Spin>

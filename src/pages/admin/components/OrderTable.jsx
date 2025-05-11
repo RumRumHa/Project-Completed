@@ -1,4 +1,5 @@
-import { Table, Spin, Tag, Button, Popconfirm, Space } from "antd";
+import { Spin, Tag, Button, Popconfirm, Space } from "antd";
+import CommonTable from "./CommonTable";
 import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { OrderStatusLabels, OrderStatusColors } from "../../../enums/OrderStatus";
 import { formatPrice } from "../../../utils/formatPrice";
@@ -100,16 +101,13 @@ const OrderTable = ({ data, loading, page, limit, onView, onDelete }) => {
   ];
 
   return (
-    <Table
+    <CommonTable
       columns={columns}
       dataSource={data}
       rowKey="orderId"
       loading={loading}
       pagination={false}
       scroll={{ x: 1000 }}
-      locale={{
-        emptyText: loading ? <Spin /> : 'Không có dữ liệu'
-      }}
     />
   );
 };

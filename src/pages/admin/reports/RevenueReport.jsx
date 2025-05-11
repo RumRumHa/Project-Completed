@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, DatePicker, Spin, Table, Statistic } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, Row, Col, Statistic, Spin, Table } from 'antd';
 import { Line, Pie } from '@ant-design/plots';
 import { useSelector, useDispatch } from 'react-redux';
 import { getSalesRevenueOverTime, getRevenueByCategory, getInvoicesOverTime } from '../../../redux/reducers/admin/reportSlice';
 import dayjs from 'dayjs';
 import '../../../styles/admin/report.css';
 import { formatPrice } from '../../../utils/formatPrice';
-
-const { RangePicker } = DatePicker;
+import DateRangeCard from '../components/DateRangeCard';
+import SummaryStats from '../components/SummaryStats';
+import ReportTable from '../components/ReportTable';
 
 const RevenueReport = ({ type }) => {
     const dispatch = useDispatch();
     const { salesRevenue, revenueByCategory, invoicesOverTime, loading } = useSelector((state) => state.reportAdmin);
     const [dateRange, setDateRange] = useState([dayjs().subtract(30, 'days'), dayjs()]);
 
-    useEffect(() => {
+    const fetchData = useCallback(() => {
         if (dateRange[0] && dateRange[1]) {
             if (type === 'sales-revenue-over-time') {
                 dispatch(getSalesRevenueOverTime({
@@ -34,6 +35,11 @@ const RevenueReport = ({ type }) => {
             }
         }
     }, [dispatch, dateRange, type]);
+
+    useEffect(() => {
+        const timeout = setTimeout(fetchData, 200);
+        return () => clearTimeout(timeout);
+    }, [fetchData]);
 
     const formatCurrency = (amount) => {
         return formatPrice(amount);
@@ -148,58 +154,33 @@ const RevenueReport = ({ type }) => {
         <div className="report-container">
             <Row gutter={[16, 16]} className="report-container-row">
                 <Col span={24}>
-                    <Card>
-                        <RangePicker
-                            value={dateRange}
-                            onChange={setDateRange}
-                            className="report-date-picker"
-                        />
-                    </Card>
+                    <DateRangeCard
+                        value={dateRange}
+                        onChange={setDateRange}
+                    />
                 </Col>
             </Row>
 
             {type === 'sales-revenue-over-time' && (
-                <>
-                    <Row gutter={[16, 16]} className="report-container-row">
-                        <Col span={8}>
-                            <Card>
-                                <Statistic
-                                    title="Tổng doanh thu"
-                                    value={totalRevenue}
-                                    formatter={(value) => formatCurrency(value)}
-                                />
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card>
-                                <Statistic
-                                    title="Tổng số hóa đơn"
-                                    value={totalInvoices}
-                                />
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card>
-                                <Statistic
-                                    title="Giá trị đơn hàng trung bình"
-                                    value={averageOrderValue}
-                                    formatter={(value) => formatCurrency(value)}
-                                />
-                            </Card>
-                        </Col>
-                    </Row>
-
-                    <Spin spinning={loading}>
-                        <Row gutter={[16, 16]} className="report-container-row">
-                            <Col span={24}>
-                                <Card title="Biểu đồ doanh thu theo thời gian" className="report-card">
-                                    {renderRevenueChart()}
-                                </Card>
-                            </Col>
-                        </Row>
-                    </Spin>
-                </>
-            )}
+    <>
+        <SummaryStats
+            stats={[
+                { title: 'Tổng doanh thu', value: totalRevenue, formatter: (v) => formatCurrency(v) },
+                { title: 'Tổng số hóa đơn', value: totalInvoices },
+                { title: 'Giá trị đơn hàng trung bình', value: averageOrderValue, formatter: (v) => formatCurrency(v) }
+            ]}
+        />
+        <Spin spinning={loading}>
+            <Row gutter={[16, 16]} className="report-container-row">
+                <Col span={24}>
+                    <Card title="Biểu đồ doanh thu theo thời gian" className="report-card">
+                        {renderRevenueChart()}
+                    </Card>
+                </Col>
+            </Row>
+        </Spin>
+    </>
+)}
 
             {type === 'revenue-by-category' && (
                 <Spin spinning={loading}>
@@ -214,22 +195,22 @@ const RevenueReport = ({ type }) => {
             )}
 
             {type === 'invoices-over-time' && (
-                <Spin spinning={loading}>
-                    <Row gutter={[16, 16]}>
-                        <Col span={24}>
-                            <Card title="Thống kê hóa đơn theo thời gian">
-                                <Table
-                                    dataSource={invoicesOverTime}
-                                    columns={invoiceColumns}
-                                    pagination={{ pageSize: 10 }}
-                                    scroll={{ x: 'max-content' }}
-                                    rowKey="date"
-                                />
-                            </Card>
-                        </Col>
-                    </Row>
-                </Spin>
-            )}
+    <>
+        <SummaryStats
+            stats={[
+                { title: 'Tổng số hóa đơn', value: totalInvoices },
+                { title: 'Tổng doanh thu', value: invoicesOverTime?.reduce((sum, item) => sum + item.total, 0) || 0, formatter: (v) => formatCurrency(v) },
+            ]}
+        />
+        <ReportTable
+            dataSource={invoicesOverTime}
+            columns={invoiceColumns}
+            loading={loading}
+            pagination={{ pageSize: 10 }}
+            rowKey="date"
+        />
+    </>
+)}
         </div>
     );
 };

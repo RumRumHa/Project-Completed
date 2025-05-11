@@ -1,4 +1,4 @@
-import { Layout, Card, Spin, Pagination } from "antd";
+import { Layout, Card, Spin, Pagination, Button } from "antd";
 import OrderFilter from "./components/OrderFilter";
 import OrderTable from "./components/OrderTable";
 import ModalOrder from "./ModalOrder";
@@ -13,15 +13,7 @@ const Orders = () => {
     <Layout className="content-container">
       <Content className="content-content">
         <Card title="Quản lý đơn hàng">
-          <OrderFilter
-            filterItems={logic.filterProps.filterItems}
-            filterValue={logic.filterProps.filterValue}
-            onFilter={logic.filterProps.onFilter}
-            sortItems={logic.filterProps.sortItems}
-            sortValue={logic.filterProps.sortValue}
-            onSort={logic.filterProps.onSort}
-            rightExtra={logic.filterProps.rightExtra}
-          />
+          <OrderFilter {...logic.filterProps} />
           <Spin spinning={logic.loading}>
             <OrderTable
               data={logic.tableProps.data}

@@ -1,4 +1,5 @@
-import { Table, Space, Button, Popconfirm } from "antd";
+import { Space, Button, Popconfirm } from "antd";
+import CommonTable from "./CommonTable";
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 
 const ProductTable = ({ columns, data, loading, page, limit, onEdit, onDelete, onView }) => {
@@ -59,13 +60,12 @@ const ProductTable = ({ columns, data, loading, page, limit, onEdit, onDelete, o
   ];
 
   return (
-    <Table
+    <CommonTable
       columns={columns || defaultColumns}
       dataSource={data || []}
       rowKey="productId"
       pagination={false}
       loading={loading}
-      bordered
     />
   );
 };

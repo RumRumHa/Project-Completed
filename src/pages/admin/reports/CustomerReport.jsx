@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, DatePicker, Spin, Table, Statistic, Avatar } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getTopSpendingCustomers, getNewAccountsThisMonth, getInvoicesOverTime } from '../../../redux/reducers/admin/reportSlice';
 import dayjs from 'dayjs';
 import { formatPrice } from '../../../utils/formatPrice';
 import '../../../styles/admin/report.css';
-
-const { RangePicker } = DatePicker;
+import DateRangeCard from '../components/DateRangeCard';
+import SummaryStats from '../components/SummaryStats';
+import ReportTable from '../components/ReportTable';
+import { Avatar } from 'antd';
 
 const CustomerReport = ({ type }) => {
     const dispatch = useDispatch();
@@ -15,7 +16,8 @@ const CustomerReport = ({ type }) => {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
 
-    useEffect(() => {
+    // Debounced fetch logic
+    const fetchData = useCallback(() => {
         if (dateRange[0] && dateRange[1]) {
             if (type === 'top-spending-customers') {
                 dispatch(getTopSpendingCustomers({
@@ -36,7 +38,12 @@ const CustomerReport = ({ type }) => {
                 }));
             }
         }
-    }, [dispatch, dateRange, type]);
+    }, [dispatch, dateRange, type, page, limit]);
+
+    useEffect(() => {
+        const timeout = setTimeout(fetchData, 200);
+        return () => clearTimeout(timeout);
+    }, [fetchData]);
 
     const topSpendingColumns = [
         {
@@ -105,116 +112,62 @@ const CustomerReport = ({ type }) => {
         }
     ];
 
-    const getTotalSpent = () => {
-        return topSpendingCustomers?.reduce((sum, item) => sum + item.totalSpent, 0) || 0;
-    };
+    // Summary stats config
+    const summaryStats = type === 'top-spending-customers' ? [
+        {
+            title: 'Tổng chi tiêu',
+            value: topSpendingCustomers?.reduce((sum, item) => sum + item.totalSpent, 0) || 0,
+            formatter: (value) => formatPrice(value)
+        },
+    ] : type === 'invoices-over-time' ? [
+        {
+            title: 'Tổng số hóa đơn',
+            value: invoicesOverTime?.reduce((sum, item) => sum + item.invoiceCount, 0) || 0,
+        },
+        {
+            title: 'Tổng doanh thu',
+            value: invoicesOverTime?.reduce((sum, item) => sum + item.total, 0) || 0,
+            formatter: (value) => formatPrice(value)
+        },
+    ] : [];
 
-
-    const getTotalInvoices = () => {
-        return invoicesOverTime?.reduce((sum, item) => sum + item.invoiceCount, 0) || 0;
-    };
-
-    const getTotalInvoiceRevenue = () => {
-        return invoicesOverTime?.reduce((sum, item) => sum + item.total, 0) || 0;
+    // Table data & columns
+    const tableData = type === 'top-spending-customers'
+        ? topSpendingCustomers
+        : Array.isArray(newAccounts)
+            ? [...newAccounts].sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
+            : Array.isArray(newAccounts?.data)
+                ? [...newAccounts.data].sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
+                : [];
+    const tableColumns = type === 'top-spending-customers' ? topSpendingColumns : newAccountsColumns;
+    const tableRowKey = type === 'top-spending-customers' ? 'customerId' : type === 'new-accounts-this-month' ? 'userId' : 'date';
+    const tablePagination = {
+        current: page,
+        pageSize: limit,
+        showSizeChanger: true,
+        pageSizeOptions: ['5', '10', '20', '50'],
+        total: type === 'top-spending-customers'
+            ? topSpendingCustomers?.length || 0
+            : newAccounts?.total || newAccounts?.length || 0,
+        onChange: (current, pageSize) => {
+            setPage(current);
+            setLimit(pageSize);
+        }
     };
 
     return (
         <div className="report-container">
-            <Row gutter={[16, 16]} className='report-container-row'>
-                <Col span={24}>
-                    <Card>
-                        <RangePicker
-                            value={dateRange}
-                            onChange={setDateRange}
-                            className="report-date-picker"
-                        />
-                    </Card>
-                </Col>
-            </Row>
-
-            {type === 'top-spending-customers' && (
-                <Row gutter={[16, 16]} className="report-container-row">
-                    <Col span={12}>
-                        <Card>
-                            <Statistic
-                                title="Tổng chi tiêu"
-                                value={getTotalSpent()}
-                                formatter={(value) => formatPrice(value)}
-                            />
-                        </Card>
-                    </Col>
-                </Row>
-            )}
-
-            {type === 'invoices-over-time' && (
-                <Row gutter={[16, 16]} className="report-container-row">
-                    <Col span={12}>
-                        <Card>
-                            <Statistic
-                                title="Tổng số hóa đơn"
-                                value={getTotalInvoices()}
-                            />
-                        </Card>
-                    </Col>
-                    <Col span={12}>
-                        <Card>
-                            <Statistic
-                                title="Tổng doanh thu"
-                                value={getTotalInvoiceRevenue()}
-                                formatter={(value) => formatPrice(value)}
-                            />
-                        </Card>
-                    </Col>
-                </Row>
-            )}
-
-            <Spin spinning={loading}>
-                <Row gutter={[16, 16]}>
-                    <Col span={24}>
-                        <Card 
-                            title={
-                                type === 'top-spending-customers' ? 'Top khách hàng chi tiêu nhiều' : 'Danh sách tài khoản mới'
-                            }
-                        >
-                            <Table
-                                dataSource={
-                                    type === 'top-spending-customers'
-                                        ? topSpendingCustomers
-                                        : Array.isArray(newAccounts)
-                                            ? [...newAccounts].sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
-                                            : Array.isArray(newAccounts?.data)
-                                                ? [...newAccounts.data].sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
-                                                : []
-                                }
-                                columns={
-                                    type === 'top-spending-customers' ? topSpendingColumns : newAccountsColumns
-                                }
-                                pagination={{
-                                    current: page,
-                                    pageSize: limit,
-                                    showSizeChanger: true,
-                                    pageSizeOptions: ['5', '10', '20', '50'],
-                                    total: type === 'top-spending-customers'
-                                        ? topSpendingCustomers?.length || 0
-                                        : newAccounts?.total || newAccounts?.length || 0
-                                }}
-                                onChange={(pagination) => {
-                                    setPage(pagination.current);
-                                    setLimit(pagination.pageSize);
-                                }}
-                                scroll={{ x: 'max-content' }}
-                                rowKey={
-                                    type === 'top-spending-customers' ? 'customerId' :
-                                    type === 'new-accounts-this-month' ? 'userId' :
-                                    'date'
-                                }
-                            />
-                        </Card>
-                    </Col>
-                </Row>
-            </Spin>
+            <DateRangeCard value={dateRange} onChange={setDateRange} loading={loading} />
+            {summaryStats.length > 0 && <SummaryStats stats={summaryStats} />}
+            <ReportTable
+                dataSource={tableData}
+                columns={tableColumns}
+                loading={loading}
+                pagination={tablePagination}
+                rowKey={tableRowKey}
+            />
         </div>
     );
 };
 
-export default CustomerReport; 
+export default CustomerReport;

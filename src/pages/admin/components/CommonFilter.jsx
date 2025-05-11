@@ -1,10 +1,10 @@
 import { Input, Button, Dropdown } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 
-const CategoryFilter = ({ filterItems, filterValue, onFilter, searchInput, onSearch, onReset, isSearching, rightExtra }) => (
+const CommonFilter = ({ filterItems, filterValue, onFilter, searchInput, onSearch, onReset, isSearching, rightExtra }) => (
   <div className="content-filter">
     <Input.Search
-      placeholder="Tìm kiếm danh mục..."
+      placeholder="Tìm kiếm..."
       allowClear
       value={searchInput}
       onChange={e => onSearch(e.target.value)}
@@ -27,6 +27,4 @@ const CategoryFilter = ({ filterItems, filterValue, onFilter, searchInput, onSea
   </div>
 );
 
-
-
-export default CategoryFilter;
+export default CommonFilter;

@@ -42,14 +42,22 @@ const Categories = () => {
                 <Card
                   hoverable
                   className='text-card'
-                  bodyStyle={{
-                    padding: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%'
+                  style={{
+                    body: {
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                      flexDirection: 'column'
+                    }
                   }}
                 >
+                  <img
+                    src={category.avatar}
+                    alt={category.categoryName}
+                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                  />
                   <Text
                     className='text-content-category'
                   >
@@ -61,7 +69,7 @@ const Categories = () => {
           ))}
         </Row>
       </Card>
-    </div>
+    </div >
   );
 };
 

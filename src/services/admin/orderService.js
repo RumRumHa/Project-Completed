@@ -1,45 +1,58 @@
-import { BASE_URL_ADMIN } from '../../api'
+import { adminApi } from '../../services/baseApiService';
 
 const orderService = {
-  getOrdersAPI: async ({ page = 1, limit = 10, sortBy = "createdAt", orderBy = "desc", status }) => {
-    let url = `/orders?page=${page - 1}&limit=${limit}`
-    if (sortBy && orderBy) {
-      url += `&sortBy=${sortBy}&orderBy=${orderBy}`
+  // Lấy danh sách đơn hàng với phân trang và sắp xếp
+  getOrdersAPI: async (params = {}) => {
+    const defaultParams = {
+      page: 1,
+      limit: 10,
+      sortBy: "createdAt",
+      orderBy: "desc"
+    };
+    
+    // Tạo tham số mới với các giá trị mặc định và tham số được truyền vào
+    const mergedParams = { ...defaultParams, ...params };
+    
+    // Loại bỏ trạng thái 'all' khỏi tham số truy vấn
+    if (mergedParams.status === 'all') {
+      delete mergedParams.status;
     }
-    if (status && status !== 'all') {
-      url += `&status=${status}`
-    }
-    const res = await BASE_URL_ADMIN.get(url)
-    return res.data
+    
+    return adminApi.get('/orders', mergedParams);
   },
 
+  // Lấy đơn hàng theo ID
   getOrderByIdAPI: async (id) => {
-    try {
-      const res = await BASE_URL_ADMIN.get(`/orders/orderDetail/${id}`)
-      return res.data
-    } catch (error) {
-      throw error.response?.data || error.message
-    }
+    return adminApi.get(`/orders/orderDetail/${id}`);
   },
 
-  getOrderByStatusAPI: async ({ page = 1, limit = 10, sortBy = "createdAt", orderBy = "desc", status }) => {
-    let url = `/orders/${status}?page=${page - 1}&limit=${limit}`
-    if (sortBy && orderBy) {
-      url += `&sortBy=${sortBy}&orderBy=${orderBy}`
+  // Lấy đơn hàng theo trạng thái
+  getOrderByStatusAPI: async (params = {}) => {
+    const { status, ...otherParams } = params;
+    
+    if (!status) {
+      throw new Error('Cần cung cấp trạng thái đơn hàng');
     }
-    const res = await BASE_URL_ADMIN.get(url)
-    return res.data
+    
+    const defaultParams = {
+      page: 1,
+      limit: 10,
+      sortBy: "createdAt",
+      orderBy: "desc"
+    };
+    
+    return adminApi.get(`/orders/${status}`, { ...defaultParams, ...otherParams });
   },
 
+  // Cập nhật trạng thái đơn hàng
   updateOrderStatusAPI: async (id, status) => {
-    const res = await BASE_URL_ADMIN.put(`/orders/${id}/status/${status}`)
-    return res.data
+    return adminApi.put(`/orders/${id}/status/${status}`);
   },
 
+  // Xóa đơn hàng
   deleteOrderAPI: async (id) => {
-    const res = await BASE_URL_ADMIN.delete(`/orders/${id}`)
-    return res.data
+    return adminApi.delete(`/orders/${id}`);
   },
-}
+};
 
 export default orderService;

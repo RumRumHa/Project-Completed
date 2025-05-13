@@ -32,11 +32,18 @@ function ProductListSection({
   emptyText = 'Không có sản phẩm nào',
   extraFilterBar = null,
   showPagination = true,
+  isSearching = false,
+  searchInput = '',
 }) {
   return (
     <Card>
       {title && <h1 className="mb-0">{title}</h1>}
       <div className="mb-4">
+        {isSearching && (
+          <Text style={{ display: 'block', marginBottom: 16 }}>
+            Tìm thấy {total} kết quả cho "{searchInput}"
+          </Text>
+        )}
         <Space className="categories-filter-space">
           {extraFilterBar}
           {filterItems.length > 0 && (

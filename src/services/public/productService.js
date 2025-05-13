@@ -1,64 +1,77 @@
-import { BASE_URL } from '../../api'
+import { publicApi } from '../../services/baseApiService';
 
 const productService = {
-    getProducts: async ({ page = 1, limit = 10, sortBy = "productName", orderBy = "asc" }) => {
-        let url = `/products?page=${page - 1}&limit=${limit}`
-        if (sortBy && orderBy) {
-            url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-        }
-        const res = await BASE_URL.get(url)
-        return res.data
+    // Lấy danh sách sản phẩm với phân trang và sắp xếp
+    getProducts: async (params = {}) => {
+        const defaultParams = {
+            page: 1,
+            limit: 10,
+            sortBy: "productName",
+            orderBy: "asc"
+        };
+        return publicApi.get('/products', { ...defaultParams, ...params });
     },
 
+    // Lấy sản phẩm theo ID
     getProductById: async (id) => {
-        const res = await BASE_URL.get(`/products/${id}`)
-        return res.data
+        return publicApi.getById('/products', id);
     },
 
-    getProductsByCategory: async (categoryId, { page = 1, limit = 10, sortBy = "productName", orderBy = "asc" }) => {
-        let url = `/products/categories/${categoryId}?page=${page - 1}&limit=${limit}`
-        if (sortBy && orderBy) {
-            url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-        }
-        const res = await BASE_URL.get(url)
-        return res.data
+    // Lấy sản phẩm theo danh mục
+    getProductsByCategory: async (categoryId, params = {}) => {
+        const defaultParams = {
+            page: 1,
+            limit: 10,
+            sortBy: "productName",
+            orderBy: "asc"
+        };
+        return publicApi.get(`/products/categories/${categoryId}`, { ...defaultParams, ...params });
     },
 
-    searchProducts: async ({ page = 1, limit = 10, keyword = "", sortBy = "productName", orderBy = "asc" }) => {
-        let url = `/products/search?keyword=${keyword}&page=${page - 1}&limit=${limit}`
-        if (sortBy && orderBy) {
-            url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-        }
-        const res = await BASE_URL.get(url)
-        return res.data
+    // Tìm kiếm sản phẩm
+    searchProducts: async (params = {}) => {
+        const defaultParams = {
+            page: 1,
+            limit: 10,
+            keyword: "",
+            sortBy: "productName",
+            orderBy: "asc"
+        };
+        return publicApi.get('/products/search', { ...defaultParams, ...params });
     },
 
-    getFeaturedProducts: async ({ page = 1, limit = 10, sortBy = "productName", orderBy = "asc" }) => {
-        let url = `/products/featured-products?page=${page - 1}&limit=${limit}`
-        if (sortBy && orderBy) {
-            url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-        }
-        const res = await BASE_URL.get(url)
-        return res.data
+    // Lấy sản phẩm nổi bật
+    getFeaturedProducts: async (params = {}) => {
+        const defaultParams = {
+            page: 1,
+            limit: 10,
+            sortBy: "productName",
+            orderBy: "asc"
+        };
+        return publicApi.get('/products/featured-products', { ...defaultParams, ...params });
     },
 
-    getNewProducts: async ({ page = 1, limit = 10, sortBy = "productName", orderBy = "asc" }) => {
-        let url = `/products/new-products?page=${page - 1}&limit=${limit}`
-        if (sortBy && orderBy) {
-            url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-        }
-        const res = await BASE_URL.get(url)
-        return res.data
+    // Lấy sản phẩm mới
+    getNewProducts: async (params = {}) => {
+        const defaultParams = {
+            page: 1,
+            limit: 10,
+            sortBy: "createdAt",
+            orderBy: "desc"
+        };
+        return publicApi.get('/products/new-products', { ...defaultParams, ...params });
     },
 
-    getBestSellerProducts: async ({ page = 1, limit = 10, sortBy = "productName", orderBy = "asc" }) => {
-        let url = `/products/best-seller-products?page=${page - 1}&limit=${limit}`
-        if (sortBy && orderBy) {
-            url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-        }
-        const res = await BASE_URL.get(url)
-        return res.data
+    // Lấy sản phẩm bán chạy
+    getBestSellerProducts: async (params = {}) => {
+        const defaultParams = {
+            page: 1,
+            limit: 10,
+            sortBy: "productName",
+            orderBy: "asc"
+        };
+        return publicApi.get('/products/best-seller-products', { ...defaultParams, ...params });
     }
-}
+};
 
-export default productService
+export default productService;

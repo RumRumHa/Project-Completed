@@ -20,8 +20,8 @@ const useProductLogic = () => {
     { key: 'all', label: 'Tất cả' },
     { key: 'productName_asc', label: 'Tên A-Z' },
     { key: 'productName_desc', label: 'Tên Z-A' },
-    { key: 'price_asc', label: 'Giá tăng dần' },
-    { key: 'price_desc', label: 'Giá giảm dần' },
+    { key: 'unitPrice_asc', label: 'Giá tăng dần' },
+    { key: 'unitPrice_desc', label: 'Giá giảm dần' },
   ];
 
   useEffect(() => {

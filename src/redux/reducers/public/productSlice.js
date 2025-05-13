@@ -1,17 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import productService from '../../../services/public/productService'
 
+/**
+ * Trạng thái ban đầu của product
+ */
 const initialState = {
-    data: [],
-    searchResults: [],
-    featuredProducts: [],
-    newProducts: [],
-    bestSellerProducts: [],
-    currentProduct: null,
-    loading: false,
-    error: null,
-    total: 0
+    data: [],                  // Danh sách sản phẩm
+    searchResults: [],         // Kết quả tìm kiếm
+    featuredProducts: [],      // Sản phẩm nổi bật
+    newProducts: [],           // Sản phẩm mới
+    bestSellerProducts: [],    // Sản phẩm bán chạy
+    currentProduct: null,      // Sản phẩm hiện tại đang xem
+    loading: false,            // Trạng thái đang tải
+    error: null,               // Thông tin lỗi
+    total: 0                   // Tổng số sản phẩm
 }
+/**
+ * Lấy danh sách sản phẩm
+ * @param {object} params - Tham số phân trang và sắp xếp
+ * @returns {Promise<object>} Danh sách sản phẩm và tổng số sản phẩm
+ */
 export const fetchProducts = createAsyncThunk(
     'product/fetchProducts',
     async (params, { rejectWithValue }) => {
@@ -19,10 +27,15 @@ export const fetchProducts = createAsyncThunk(
             const response = await productService.getProducts(params)
             return response
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.message || 'Không thể tải danh sách sản phẩm')
         }
     }
 )
+/**
+ * Lấy thông tin chi tiết của một sản phẩm theo ID
+ * @param {string|number} id - ID của sản phẩm cần lấy thông tin
+ * @returns {Promise<object>} Thông tin chi tiết của sản phẩm
+ */
 export const fetchProductById = createAsyncThunk(
     'product/fetchProductById',
     async (id, { rejectWithValue }) => {
@@ -30,10 +43,17 @@ export const fetchProductById = createAsyncThunk(
             const response = await productService.getProductById(id)
             return response
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.message || 'Không thể tải thông tin sản phẩm')
         }
     }
 )
+/**
+ * Lấy danh sách sản phẩm theo danh mục
+ * @param {object} params - Tham số truy vấn
+ * @param {string|number} params.categoryId - ID của danh mục
+ * @param {object} params.params - Tham số phân trang và sắp xếp
+ * @returns {Promise<object>} Danh sách sản phẩm và tổng số sản phẩm
+ */
 export const fetchProductsByCategory = createAsyncThunk(
     'product/fetchProductsByCategory',
     async ({ categoryId, params }, { rejectWithValue }) => {
@@ -41,10 +61,20 @@ export const fetchProductsByCategory = createAsyncThunk(
             const response = await productService.getProductsByCategory(categoryId, params)
             return response
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.message || 'Không thể tải sản phẩm theo danh mục')
         }
     }
 )
+/**
+ * Tìm kiếm sản phẩm theo từ khóa
+ * @param {object} params - Tham số tìm kiếm
+ * @param {number} params.page - Trang hiện tại
+ * @param {number} params.limit - Số lượng sản phẩm trên một trang
+ * @param {string} params.keyword - Từ khóa tìm kiếm
+ * @param {string} params.sortBy - Trường để sắp xếp
+ * @param {string} params.orderBy - Hướng sắp xếp
+ * @returns {Promise<object>} Kết quả tìm kiếm và tổng số sản phẩm
+ */
 export const fetchProductsByKeyword = createAsyncThunk(
     'product/fetchProductsByKeyword',
     async ({ page = 1, limit = 10, keyword = '', sortBy, orderBy }, { rejectWithValue }) => {
@@ -52,10 +82,15 @@ export const fetchProductsByKeyword = createAsyncThunk(
             const response = await productService.searchProducts({ page, limit, keyword, sortBy, orderBy })
             return response
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.message || 'Không thể tìm kiếm sản phẩm')
         }
     }
 )
+/**
+ * Lấy danh sách sản phẩm nổi bật
+ * @param {object} params - Tham số phân trang và sắp xếp
+ * @returns {Promise<object>} Danh sách sản phẩm nổi bật và tổng số sản phẩm
+ */
 export const fetchFeaturedProducts = createAsyncThunk(
     'product/fetchFeaturedProducts',
     async (params, { rejectWithValue }) => {
@@ -63,10 +98,15 @@ export const fetchFeaturedProducts = createAsyncThunk(
             const response = await productService.getFeaturedProducts(params)
             return response
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.message || 'Không thể tải sản phẩm nổi bật')
         }
     }
 )
+/**
+ * Lấy danh sách sản phẩm mới
+ * @param {object} params - Tham số phân trang và sắp xếp
+ * @returns {Promise<object>} Danh sách sản phẩm mới và tổng số sản phẩm
+ */
 export const fetchNewProducts = createAsyncThunk(
     'product/fetchNewProducts',
     async (params, { rejectWithValue }) => {
@@ -74,10 +114,15 @@ export const fetchNewProducts = createAsyncThunk(
             const response = await productService.getNewProducts(params)
             return response
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.message || 'Không thể tải sản phẩm mới')
         }
     }
 )
+/**
+ * Lấy danh sách sản phẩm bán chạy
+ * @param {object} params - Tham số phân trang và sắp xếp
+ * @returns {Promise<object>} Danh sách sản phẩm bán chạy và tổng số sản phẩm
+ */
 export const fetchBestSellerProducts = createAsyncThunk(
     'product/fetchBestSellerProducts',
     async (params, { rejectWithValue }) => {
@@ -85,7 +130,7 @@ export const fetchBestSellerProducts = createAsyncThunk(
             const response = await productService.getBestSellerProducts(params)
             return response
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.message || 'Không thể tải sản phẩm bán chạy')
         }
     }
 )

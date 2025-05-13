@@ -62,7 +62,6 @@ export default function useCart() {
     try {
       setCheckoutLoading(true);
       const response = await dispatch(checkout({ addressId: selectedAddressId })).unwrap();
-      toast.success('Đặt hàng thành công!');
       setAddressModalVisible(false);
       if (onSuccess) onSuccess();
       navigate('/profile/orders');

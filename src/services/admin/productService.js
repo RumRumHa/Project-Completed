@@ -1,52 +1,57 @@
-import { BASE_URL_ADMIN_FORMDATA } from '../../api'
+import { adminFormDataApi } from '../../services/baseApiService';
 
 const productService = {
-  getProductAPI: async ({ page = 1, limit = 10, sortBy = "productName", orderBy = "asc" }) => {
-    let url = `/products?page=${page - 1}&limit=${limit}`
-    if (sortBy && orderBy) {
-      url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-    }
-    const res = await BASE_URL_ADMIN_FORMDATA.get(url);
-    return res.data;
+  // Lấy danh sách sản phẩm với phân trang và sắp xếp
+  getProductAPI: async (params = {}) => {
+    const defaultParams = {
+      page: 1,
+      limit: 10,
+      sortBy: "productName",
+      orderBy: "asc"
+    };
+    return adminFormDataApi.get('/products', { ...defaultParams, ...params });
   },
   
-  searchProductAPI: async ({ page = 1, limit = 10, keyword = "", sortBy = "productName", orderBy = "asc" }) => {
-    let url = `/products/search?keyword=${keyword}&page=${page - 1}&limit=${limit}`
-    if (sortBy && orderBy) {
-      url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-    }
-    const res = await BASE_URL_ADMIN_FORMDATA.get(url);
-    return res.data;
+  // Tìm kiếm sản phẩm
+  searchProductAPI: async (params = {}) => {
+    const defaultParams = {
+      page: 1,
+      limit: 10,
+      keyword: "",
+      sortBy: "productName",
+      orderBy: "asc"
+    };
+    return adminFormDataApi.get('/products/search', { ...defaultParams, ...params });
   },
   
+  // Lấy sản phẩm theo ID
   getProductByIdAPI: async (id) => {
-    const res = await BASE_URL_ADMIN_FORMDATA.get(`/products/${id}`);
-    return res.data;
+    return adminFormDataApi.getById('/products', id);
   },
   
+  // Tạo sản phẩm mới
   createProduct: async (formData) => {
-    const response = await BASE_URL_ADMIN_FORMDATA.post("/products", formData, {
+    return adminFormDataApi.post("/products", formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-    return response.data;
   },
   
+  // Cập nhật sản phẩm
   updateProduct: async (id, formData) => {
-    const response = await BASE_URL_ADMIN_FORMDATA.put(`/products/${id}`, formData, {
+    return adminFormDataApi.put(`/products/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json'
       }
     });
-    return response.data;
   },
   
+  // Xóa sản phẩm
   deleteProduct: async (id) => {
-    const response = await BASE_URL_ADMIN_FORMDATA.delete(`/products/${id}`);
-    return response.data;
+    return adminFormDataApi.delete(`/products/${id}`);
   },
-}
+};
 
 export default productService;

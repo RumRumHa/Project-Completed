@@ -1,53 +1,58 @@
-import { BASE_URL_ADMIN, BASE_URL_ADMIN_FORMDATA } from '../../api'
+import { adminApi, adminFormDataApi } from '../../services/baseApiService';
 
 const categoryService = {
-  getCategoryAPI: async ({ page = 1, limit = 10, sortBy = "categoryName", orderBy = "asc" }) => {
-    let url = `/categories?page=${page - 1}&limit=${limit}`
-    if (sortBy && orderBy) {
-      url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-    }
-    const res = await BASE_URL_ADMIN.get(url)
-    return res.data
+  // Lấy danh sách danh mục với phân trang và sắp xếp
+  getCategoryAPI: async (params = {}) => {
+    const defaultParams = {
+      page: 1,
+      limit: 10,
+      sortBy: "categoryName",
+      orderBy: "asc"
+    };
+    return adminApi.get('/categories', { ...defaultParams, ...params });
   },
 
-  searchCategoryAPI: async ({ page = 1, limit = 10, keyword = "", sortBy = "categoryName", orderBy = "asc" }) => {
-    let url = `/categories/search?keyword=${keyword}&page=${page - 1}&limit=${limit}`
-    if (sortBy && orderBy) {
-      url += `&sortBy=${sortBy}&orderBy=${orderBy}`
-    }
-    const res = await BASE_URL_ADMIN.get(url)
-    return res.data
+  // Tìm kiếm danh mục
+  searchCategoryAPI: async (params = {}) => {
+    const defaultParams = {
+      page: 1,
+      limit: 10,
+      keyword: "",
+      sortBy: "categoryName",
+      orderBy: "asc"
+    };
+    return adminApi.get('/categories/search', { ...defaultParams, ...params });
   },
 
+  // Lấy danh mục theo ID
   getCategoryByIdAPI: async (id) => {
-    const res = await BASE_URL_ADMIN.get(`/categories/${id}`)
-    return res.data
+    return adminApi.getById('/categories', id);
   },
 
+  // Tạo danh mục mới
   createCategory: async (formData) => {
-    const res = await BASE_URL_ADMIN_FORMDATA.post('/categories', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json'
-      }
-    })
-    return res.data
-  },
-
-  updateCategory: async (id, formData) => {
-    const res = await BASE_URL_ADMIN_FORMDATA.put(`/categories/${id}`, formData, {
+    return adminFormDataApi.post('/categories', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json'
       }
     });
-    return res.data
   },
 
-  deleteCategory: async (id) => {
-    const res = await BASE_URL_ADMIN.delete(`/categories/${id}`)
-    return res.data
+  // Cập nhật danh mục
+  updateCategory: async (id, formData) => {
+    return adminFormDataApi.put(`/categories/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json'
+      }
+    });
   },
-}
+
+  // Xóa danh mục
+  deleteCategory: async (id) => {
+    return adminApi.delete(`/categories/${id}`);
+  },
+};
 
 export default categoryService;

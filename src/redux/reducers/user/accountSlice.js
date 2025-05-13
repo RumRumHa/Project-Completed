@@ -3,195 +3,273 @@ import accountService from '../../../services/user/accountService';
 import Cookies from 'js-cookie';
 import { OrderStatus } from '../../../enums/OrderStatus';
 
+/**
+ * Kiểm tra token và trả về lỗi nếu không có
+ * @returns {string} Token hoặc lỗi
+ */
+const getTokenOrReject = () => {
+    const token = Cookies.get('token');
+    if (!token) {
+        throw new Error('Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn');
+    }
+    return token;
+};
+
+/**
+ * Lấy thông tin tài khoản
+ */
 export const fetchAccountInfo = createAsyncThunk(
     'account/fetchInfo',
     async (_, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.getAccountInfo(token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể tải thông tin tài khoản');
+            return rejectWithValue(error.message || 'Không thể tải thông tin tài khoản');
         }
     }
 );
+
+/**
+ * Cập nhật thông tin tài khoản
+ */
 export const updateAccountInfo = createAsyncThunk(
     'account/updateInfo',
     async (formData, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.updateAccountInfo(formData, token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Cập nhật thông tin thất bại');
+            return rejectWithValue(error.message || 'Cập nhật thông tin thất bại');
         }
     }
 );
+
+/**
+ * Đổi mật khẩu
+ */
 export const changePassword = createAsyncThunk(
     'account/changePassword',
     async (passwordData, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             await accountService.changePassword(passwordData, token);
             return true;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Đổi mật khẩu thất bại');
+            return rejectWithValue(error.message || 'Đổi mật khẩu thất bại');
         }
     }
 );
+
+/**
+ * Lấy danh sách địa chỉ
+ */
 export const fetchAddresses = createAsyncThunk(
     'account/fetchAddresses',
     async (_, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.getAddresses(token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể tải danh sách địa chỉ');
+            return rejectWithValue(error.message || 'Không thể tải danh sách địa chỉ');
         }
     }
 );
+/**
+ * Lấy địa chỉ theo ID
+ */
 export const fetchAddressById = createAsyncThunk(
     'account/fetchAddressById',
     async (addressId, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.getAddressById(addressId, token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể tải thông tin địa chỉ');
+            return rejectWithValue(error.message || 'Không thể tải thông tin địa chỉ');
         }
     }
 );
+
+/**
+ * Cập nhật địa chỉ
+ */
 export const updateAddress = createAsyncThunk(
     'account/updateAddress',
     async (addressData, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.updateAddress(addressData, token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Cập nhật địa chỉ thất bại');
+            return rejectWithValue(error.message || 'Cập nhật địa chỉ thất bại');
         }
     }
 );
+
+/**
+ * Thêm địa chỉ mới
+ */
 export const addAddress = createAsyncThunk(
     'account/addAddress',
     async (addressData, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.addAddress(addressData, token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Thêm địa chỉ thất bại');
+            return rejectWithValue(error.message || 'Thêm địa chỉ thất bại');
         }
     }
 );
+
+/**
+ * Xóa địa chỉ
+ */
 export const deleteAddress = createAsyncThunk(
     'account/deleteAddress',
     async (addressId, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             await accountService.deleteAddress(addressId, token);
             return addressId;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Xóa địa chỉ thất bại');
+            return rejectWithValue(error.message || 'Xóa địa chỉ thất bại');
         }
     }
 );
+
+/**
+ * Đặt địa chỉ mặc định
+ */
 export const setDefaultAddress = createAsyncThunk(
     'account/setDefaultAddress',
     async (addressId, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             await accountService.setDefaultAddress(addressId, token);
             return addressId;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Xóa địa chỉ thất bại');
+            return rejectWithValue(error.message || 'Không thể đặt địa chỉ mặc định');
         }
     }
 );
+/**
+ * Lấy danh sách yêu thích
+ */
 export const fetchWishlist = createAsyncThunk(
     'account/fetchWishlist',
     async (_, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.getWishlist(token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể tải danh sách yêu thích');
+            return rejectWithValue(error.message || 'Không thể tải danh sách yêu thích');
         }
     }
 );
+
+/**
+ * Thêm sản phẩm vào danh sách yêu thích
+ */
 export const addToWishlist = createAsyncThunk(
     'account/addToWishlist',
-    async (productId, { rejectWithValue }) => {
+    async (productId, { rejectWithValue, dispatch }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.addToWishlist(productId, token);
+            // Làm mới danh sách yêu thích
+            dispatch(fetchWishlist());
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể thêm vào danh sách yêu thích');
+            return rejectWithValue(error.message || 'Không thể thêm vào danh sách yêu thích');
         }
     }
 );
+
+/**
+ * Xóa sản phẩm khỏi danh sách yêu thích
+ */
 export const removeFromWishlist = createAsyncThunk(
     'account/removeFromWishlist',
-    async (wishListId, { rejectWithValue }) => {
+    async (wishListId, { rejectWithValue, dispatch }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             await accountService.removeFromWishlist(wishListId, token);
+            // Làm mới danh sách yêu thích
+            dispatch(fetchWishlist());
             return wishListId;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể xóa khỏi danh sách yêu thích');
+            return rejectWithValue(error.message || 'Không thể xóa khỏi danh sách yêu thích');
         }
     }
 );
+/**
+ * Lấy lịch sử đơn hàng
+ */
 export const fetchOrderHistory = createAsyncThunk(
     'account/fetchOrderHistory',
     async (_, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.getOrderHistory(token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể tải lịch sử đơn hàng');
+            return rejectWithValue(error.message || 'Không thể tải lịch sử đơn hàng');
         }
     }
 );
+
+/**
+ * Lấy chi tiết đơn hàng
+ */
 export const fetchOrderDetail = createAsyncThunk(
     'account/fetchOrderDetail',
     async (serialNumber, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.getOrderDetail(serialNumber, token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể tải chi tiết đơn hàng');
+            return rejectWithValue(error.message || 'Không thể tải chi tiết đơn hàng');
         }
     }
 );
+
+/**
+ * Lấy danh sách đơn hàng theo trạng thái
+ */
 export const fetchOrdersByStatus = createAsyncThunk(
     'account/fetchOrdersByStatus',
     async (status, { rejectWithValue }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             const data = await accountService.getOrdersByStatus(status, token);
             return data;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể tải danh sách đơn hàng');
+            return rejectWithValue(error.message || 'Không thể tải danh sách đơn hàng');
         }
     }
 );
+
+/**
+ * Hủy đơn hàng
+ */
 export const cancelOrder = createAsyncThunk(
     'account/cancelOrder',
-    async (orderId, { rejectWithValue }) => {
+    async (orderId, { rejectWithValue, dispatch }) => {
         try {
-            const token = Cookies.get('token');
+            const token = getTokenOrReject();
             await accountService.cancelOrder(orderId, token);
+            // Làm mới lịch sử đơn hàng
+            dispatch(fetchOrderHistory());
             return orderId;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Không thể hủy đơn hàng');
+            return rejectWithValue(error.message || 'Không thể hủy đơn hàng');
         }
     }
 );

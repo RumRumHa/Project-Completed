@@ -1,113 +1,189 @@
-    import { BASE_URL_USER } from '../../api';
+    import { userApi } from '../../services/baseApiService';
+import Cookies from 'js-cookie';
 
+/**
+ * Helper để lấy cấu hình xác thực từ token
+ * @param {string} token - Token xác thực, nếu không cung cấp sẽ lấy từ cookie
+ * @returns {Object} Cấu hình headers với token xác thực
+ */
+const getAuthConfig = (token) => {
+    // Nếu không cung cấp token, lấy từ cookie
+    const authToken = token || Cookies.get('token');
+    return {
+        headers: {
+            Authorization: `Bearer ${authToken}`
+        }
+    };
+};
+
+/**
+ * Dịch vụ quản lý tài khoản người dùng
+ */
 const accountService = {
-    // Lấy thông tin tài khoản
+    /**
+     * Lấy thông tin tài khoản
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Thông tin tài khoản
+     */
     getAccountInfo: async (token) => {
-        const response = await BASE_URL_USER.get('/account', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.get('/account', {}, getAuthConfig(token));
     },
-    // Cập nhật thông tin tài khoản
+
+    /**
+     * Cập nhật thông tin tài khoản
+     * @param {FormData} formData - Dữ liệu form cập nhật
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả cập nhật
+     */
     updateAccountInfo: async (formData, token) => {
-        const response = await BASE_URL_USER.put('/account', formData, {
+        return userApi.put('/account', formData, {
+            ...getAuthConfig(token),
             headers: {
-                Authorization: `Bearer ${token}`,
+                ...getAuthConfig(token).headers,
                 'Content-Type': 'multipart/form-data'
             }
         });
-        return response.data;
     },
-    // Đổi mật khẩu
+
+    /**
+     * Đổi mật khẩu
+     * @param {Object} passwordData - Dữ liệu mật khẩu
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả đổi mật khẩu
+     */
     changePassword: async (passwordData, token) => {
-        const response = await BASE_URL_USER.put('/account/change-password', passwordData, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.put('/account/change-password', passwordData, getAuthConfig(token));
     },
+
+    /**
+     * Lấy danh sách địa chỉ
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Danh sách địa chỉ
+     */
     getAddresses: async (token) => {
-        const response = await BASE_URL_USER.get('/account/addresses', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.get('/account/addresses', {}, getAuthConfig(token));
     },
+
+    /**
+     * Thêm địa chỉ mới
+     * @param {Object} addressData - Dữ liệu địa chỉ
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả thêm địa chỉ
+     */
     addAddress: async (addressData, token) => {
-        const response = await BASE_URL_USER.post('/account/addresses', addressData, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.post('/account/addresses', addressData, getAuthConfig(token));
     },
+
+    /**
+     * Cập nhật địa chỉ
+     * @param {Object} addressData - Dữ liệu địa chỉ
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả cập nhật địa chỉ
+     */
     updateAddress: async (addressData, token) => {
-        const response = await BASE_URL_USER.put(`/account/addresses/${addressData.addressId}`, addressData, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.put(`/account/addresses/${addressData.addressId}`, addressData, getAuthConfig(token));
     },
+
+    /**
+     * Đặt địa chỉ mặc định
+     * @param {string|number} addressId - ID của địa chỉ
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả đặt địa chỉ mặc định
+     */
     setDefaultAddress: async (addressId, token) => {
-        const response = await BASE_URL_USER.put(`/addresses/${addressId}/default`, null, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        return response.data
+        return userApi.put(`/addresses/${addressId}/default`, null, getAuthConfig(token));
     },
+
+    /**
+     * Lấy địa chỉ theo ID
+     * @param {string|number} addressId - ID của địa chỉ
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Thông tin địa chỉ
+     */
     getAddressById: async (addressId, token) => {
-        const response = await BASE_URL_USER.get(`/account/addresses/${addressId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.get(`/account/addresses/${addressId}`, {}, getAuthConfig(token));
     },
+
+    /**
+     * Xóa địa chỉ
+     * @param {string|number} addressId - ID của địa chỉ
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả xóa địa chỉ
+     */
     deleteAddress: async (addressId, token) => {
-        await BASE_URL_USER.delete(`/account/addresses/${addressId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        return userApi.delete(`/account/addresses/${addressId}`, getAuthConfig(token));
     },
-    // Lấy danh sách yêu thích
+
+    /**
+     * Lấy danh sách yêu thích
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Danh sách yêu thích
+     */
     getWishlist: async (token) => {
-        const response = await BASE_URL_USER.get('/wish-list', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.get('/wish-list', {}, getAuthConfig(token));
     },
-    // Thêm sản phẩm vào danh sách yêu thích
+
+    /**
+     * Thêm sản phẩm vào danh sách yêu thích
+     * @param {string|number} productId - ID của sản phẩm
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả thêm vào danh sách yêu thích
+     */
     addToWishlist: async (productId, token) => {
-        const response = await BASE_URL_USER.post('/wish-list', null, {
-            headers: { Authorization: `Bearer ${token}` },
+        return userApi.post('/wish-list', null, {
+            ...getAuthConfig(token),
             params: { productId }
         });
-        return response.data;
     },
-    // Xóa sản phẩm khỏi danh sách yêu thích
+
+    /**
+     * Xóa sản phẩm khỏi danh sách yêu thích
+     * @param {string|number} wishListId - ID của mục yêu thích
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả xóa khỏi danh sách yêu thích
+     */
     removeFromWishlist: async (wishListId, token) => {
-        await BASE_URL_USER.delete(`/wish-list/${wishListId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        return userApi.delete(`/wish-list/${wishListId}`, getAuthConfig(token));
     },
-    // Lấy lịch sử đơn hàng
+
+    /**
+     * Lấy lịch sử đơn hàng
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Lịch sử đơn hàng
+     */
     getOrderHistory: async (token) => {
-        const response = await BASE_URL_USER.get('/history', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.get('/history', {}, getAuthConfig(token));
     },
-    // Lấy chi tiết đơn hàng theo số serial
+
+    /**
+     * Lấy chi tiết đơn hàng theo số serial
+     * @param {string} serialNumber - Số serial của đơn hàng
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Chi tiết đơn hàng
+     */
     getOrderDetail: async (serialNumber, token) => {
-        const response = await BASE_URL_USER.get(`/history/${serialNumber}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.get(`/history/${serialNumber}`, {}, getAuthConfig(token));
     },
-    // Lấy danh sách đơn hàng theo trạng thái
+
+    /**
+     * Lấy danh sách đơn hàng theo trạng thái
+     * @param {string} status - Trạng thái đơn hàng
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Danh sách đơn hàng theo trạng thái
+     */
     getOrdersByStatus: async (status, token) => {
-        const response = await BASE_URL_USER.get(`/history/status/${status}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        return userApi.get(`/history/status/${status}`, {}, getAuthConfig(token));
     },
-    // Hủy đơn hàng
+
+    /**
+     * Hủy đơn hàng
+     * @param {string|number} orderId - ID của đơn hàng
+     * @param {string} token - Token xác thực
+     * @returns {Promise<any>} Kết quả hủy đơn hàng
+     */
     cancelOrder: async (orderId, token) => {
-        await BASE_URL_USER.put(`/history/${orderId}/cancel`, null, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        return userApi.put(`/history/${orderId}/cancel`, null, getAuthConfig(token));
     }
 };
 
-export default accountService; 
+export default accountService;

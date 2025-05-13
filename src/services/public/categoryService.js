@@ -1,26 +1,69 @@
-import { BASE_URL } from '../../api'
+import { publicApi } from '../../services/baseApiService';
 
+/**
+ * Dịch vụ quản lý danh mục cho phần công khai
+ */
 const categoryService = {
-    getCategories: async ({ page = 0, limit = 10, sortBy = 'categoryName', orderBy = 'asc' }) => {
+    /**
+     * Lấy danh sách danh mục với phân trang và sắp xếp
+     * @param {Object} params - Các tham số truy vấn
+     * @returns {Promise<any>} Danh sách danh mục
+     */
+    getCategories: async (params = {}) => {
         try {
-            const res = await BASE_URL.get(`/categories?page=${page}&limit=${limit}&sortBy=${sortBy}&orderBy=${orderBy}`)
-            return res.data
+            const defaultParams = {
+                page: 0,
+                limit: 10,
+                sortBy: 'categoryName',
+                orderBy: 'asc'
+            };
+            // Sử dụng tham số rỗng cho params thứ 2 và truyền các tham số vào config
+            return publicApi.get('/categories', {}, {
+                params: { ...defaultParams, ...params }
+            });
         } catch (error) {
-            throw error.response?.data || error.message
+            console.error('Lỗi khi lấy danh sách danh mục:', error);
+            throw error;
         }
     },
+    
+    /**
+     * Lấy danh mục theo ID
+     * @param {string|number} id - ID của danh mục
+     * @returns {Promise<any>} Thông tin danh mục
+     */
     getCategoryById: async (id) => {
-        const res = await BASE_URL.get(`/categories/${id}`)
-        return res.data
-    },
-    getProductsByCategory: async (categoryId, { page = 1, limit = 10, sortBy = "productName", orderBy = "asc" }) => {
-        let url = `/categories/${categoryId}/products?page=${page - 1}&limit=${limit}`
-        if (sortBy && orderBy) {
-            url += `&sortBy=${sortBy}&orderBy=${orderBy}`
+        try {
+            return publicApi.getById('/categories', id);
+        } catch (error) {
+            console.error(`Lỗi khi lấy danh mục với ID ${id}:`, error);
+            throw error;
         }
-        const res = await BASE_URL.get(url)
-        return res.data
+    },
+    
+    /**
+     * Lấy sản phẩm theo danh mục
+     * @param {string|number} categoryId - ID của danh mục
+     * @param {Object} params - Các tham số truy vấn
+     * @returns {Promise<any>} Danh sách sản phẩm thuộc danh mục
+     */
+    getProductsByCategory: async (categoryId, params = {}) => {
+        try {
+            const defaultParams = {
+                page: 1,
+                limit: 10,
+                sortBy: "productName",
+                orderBy: "asc"
+            };
+            // Sử dụng tham số rỗng cho params thứ 2 và truyền các tham số vào config
+            return publicApi.get(`/categories/${categoryId}/products`, {}, {
+                params: { ...defaultParams, ...params }
+            });
+        } catch (error) {
+            console.error(`Lỗi khi lấy sản phẩm theo danh mục ${categoryId}:`, error);
+            throw error;
+        }
     }
-}
+};
 
-export default categoryService
+export default categoryService;

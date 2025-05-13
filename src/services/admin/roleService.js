@@ -1,22 +1,34 @@
-import { BASE_URL_ADMIN } from "../../api/index";
+import { adminApi } from "../../services/baseApiService";
 
-const getRolesAPI = async () => {
-    const response = await BASE_URL_ADMIN.get("/roles");
-    return response.data;
-};
-
-const addRoleToUserAPI = async (userId, roleId) => {
-    const response = await BASE_URL_ADMIN.post(`/users/${userId}/role/${roleId}`);
-    return response.data;
-};
-
-const removeRoleFromUserAPI = async (userId, roleId) => {
-    const response = await BASE_URL_ADMIN.delete(`/users/${userId}/role/${roleId}`);
-    return response.data;
-};
-
+/**
+ * Dịch vụ quản lý vai trò cho trang quản trị
+ */
 export const roleService = {
-    getRolesAPI,
-    addRoleToUserAPI,
-    removeRoleFromUserAPI
+    /**
+     * Lấy danh sách tất cả vai trò
+     * @returns {Promise<any>} Danh sách vai trò
+     */
+    getRolesAPI: async () => {
+        return adminApi.get("/roles");
+    },
+
+    /**
+     * Thêm vai trò cho người dùng
+     * @param {string|number} userId - ID của người dùng
+     * @param {string|number} roleId - ID của vai trò
+     * @returns {Promise<any>} Kết quả thêm vai trò
+     */
+    addRoleToUserAPI: async (userId, roleId) => {
+        return adminApi.post(`/users/${userId}/role/${roleId}`);
+    },
+
+    /**
+     * Xóa vai trò của người dùng
+     * @param {string|number} userId - ID của người dùng
+     * @param {string|number} roleId - ID của vai trò
+     * @returns {Promise<any>} Kết quả xóa vai trò
+     */
+    removeRoleFromUserAPI: async (userId, roleId) => {
+        return adminApi.delete(`/users/${userId}/role/${roleId}`);
+    }
 };

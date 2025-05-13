@@ -91,11 +91,6 @@ const Products = () => {
 
   return (
     <div className="categories-page">
-      {isSearching && (
-        <Text style={{ display: 'block', marginBottom: 16 }}>
-          Tìm thấy {total} kết quả cho "{searchInput}"
-        </Text>
-      )}
       <ProductListSection
         title={sectionTitle}
         products={products}
@@ -109,6 +104,8 @@ const Products = () => {
         onPageChange={handlePageChange}
         emptyText={emptyText}
         extraFilterBar={extraFilterBar}
+        isSearching={isSearching}
+        searchInput={searchInput}
       />
     </div>
   );

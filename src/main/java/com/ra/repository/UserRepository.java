@@ -27,10 +27,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByIsDeletedFalse(Pageable pageable);
     @Query(value = "SELECT * FROM users " +
             "WHERE (LOWER(remove_accents(username)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')) " +
-            "OR LOWER(remove_accents(fullname)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')))",
+            "OR LOWER(remove_accents(fullname)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')))" +
+            "AND is_deleted = false",
             countQuery = "SELECT COUNT(*) FROM users " +
                     "WHERE (LOWER(remove_accents(username)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')) " +
-                    "OR LOWER(remove_accents(fullname)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')))",
+                    "OR LOWER(remove_accents(fullname)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')))" +
+                    "AND is_deleted = false",
             nativeQuery = true)
     Page<User> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

@@ -14,6 +14,7 @@ public interface CategoryMapper {
         responseDTO.setCategoryId(category.getCategoryId());
         responseDTO.setCategoryName(category.getCategoryName());
         responseDTO.setDescription(category.getDescription());
+        responseDTO.setAvatar(category.getAvatar());
         responseDTO.setStatus(category.getStatus());
         return responseDTO;
     }

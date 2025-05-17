@@ -255,14 +255,27 @@ public class AdminController {
 
     //Thêm mới danh mục
     @PostMapping("/categories")
-    public ResponseEntity<CategoryResponseDTO> addCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
+    public ResponseEntity<CategoryResponseDTO> addCategory(
+            @ModelAttribute CategoryRequestDTO categoryRequestDTO,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+    ) {
+        if (avatar != null) {
+            categoryRequestDTO.setAvatar(avatar);
+        }
         CategoryResponseDTO responseDto = categoryService.addCategory(categoryRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     //Chỉnh sửa thông tin danh mục
     @PutMapping("/categories/{categoryId}")
-    public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryRequestDTO categoryRequestDTO) {
+    public ResponseEntity<CategoryResponseDTO> updateCategory(
+            @PathVariable Long categoryId,
+            @ModelAttribute CategoryRequestDTO categoryRequestDTO,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+    ) {
+        if (avatar != null && !avatar.isEmpty()) {
+            categoryRequestDTO.setAvatar(avatar);
+        }
         CategoryResponseDTO responseDto = categoryService.updateCategory(categoryId, categoryRequestDTO);
         return wrapOrNotFound(responseDto);
     }

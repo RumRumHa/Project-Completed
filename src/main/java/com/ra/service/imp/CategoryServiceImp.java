@@ -8,6 +8,7 @@ import com.ra.model.entity.Category;
 import com.ra.repository.CategoryRepository;
 import com.ra.repository.ProductRepository;
 import com.ra.service.CategoryService;
+import com.ra.service.CloudinaryService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,9 @@ public class CategoryServiceImp implements CategoryService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     //Lấy về danh sách tất cả danh mục (sắp xếp và phân trang)
     @Override
@@ -55,6 +59,10 @@ public class CategoryServiceImp implements CategoryService {
                     .description(categoryRequestDTO.getDescription())
                     .status(true)
                     .build();
+            if (categoryRequestDTO.getAvatar() != null && !categoryRequestDTO.getAvatar().isEmpty()) {
+                String avatar = cloudinaryService.uploadFile(categoryRequestDTO.getAvatar());
+                category.setAvatar(avatar);
+            }
             Category savedCategory = categoryRepository.save(category);
             return CategoryMapper.INSTANCE.categoryToCategoryResponseDTO(savedCategory);
         } catch (CustomException ce) {
@@ -73,6 +81,11 @@ public class CategoryServiceImp implements CategoryService {
                     .orElseThrow(() -> new CustomException("Category not found"));
             category.setCategoryName(categoryRequestDTO.getCategoryName());
             category.setDescription(categoryRequestDTO.getDescription());
+            if (categoryRequestDTO.getAvatar() != null && !categoryRequestDTO.getAvatar().isEmpty()) {
+                String avatar = cloudinaryService.uploadFile(categoryRequestDTO.getAvatar());
+                category.setAvatar(avatar);
+            }
+
             Category updatedCategory = categoryRepository.save(category);
             return CategoryMapper.INSTANCE.categoryToCategoryResponseDTO(updatedCategory);
         } catch (CustomException ce) {

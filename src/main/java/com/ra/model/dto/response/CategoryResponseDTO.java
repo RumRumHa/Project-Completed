@@ -11,5 +11,6 @@ public class CategoryResponseDTO {
     private Long categoryId;
     private String categoryName;
     private String description;
+    private String avatar;
     private Boolean status;
 }

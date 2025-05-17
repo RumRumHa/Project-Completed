@@ -23,6 +23,9 @@ public class Category {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "avatar")
+    private String avatar;
+
     @Column(name = "status", nullable = false)
     private Boolean status;
 

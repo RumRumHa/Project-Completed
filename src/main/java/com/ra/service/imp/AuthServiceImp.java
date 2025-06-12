@@ -33,12 +33,19 @@ public class AuthServiceImp implements AuthService {
     private CloudinaryService cloudinaryService;
 
     @Override
-    public boolean existsByUsernameOrEmail(String username, String email) {
-        return userRepository.existsByUsername(username) || userRepository.existsByEmail(email);
-    }
+    public void register(SignupRequestDTO signupRequestDTO) {
+        // 1. Kiểm tra dữ liệu đầu vào (trùng lặp)
+        if (userRepository.existsByUsername(signupRequestDTO.getUsername())) {
+            throw new CustomException("Tên đăng nhập đã tồn tại.");
+        }
+        if (userRepository.existsByEmail(signupRequestDTO.getEmail())) {
+            throw new CustomException("Email đã tồn tại.");
+        }
+        if (signupRequestDTO.getPhone() != null && !signupRequestDTO.getPhone().isEmpty() && userRepository.existsByPhone(signupRequestDTO.getPhone())) {
+            throw new CustomException("Số điện thoại đã tồn tại.");
+        }
 
-    @Override
-    public void saveUser(SignupRequestDTO signupRequestDTO) {
+        // 2. Tạo đối tượng User từ DTO
         User user = new User();
         user.setUsername(signupRequestDTO.getUsername());
         user.setEmail(signupRequestDTO.getEmail());
@@ -47,36 +54,32 @@ public class AuthServiceImp implements AuthService {
         user.setPhone(signupRequestDTO.getPhone());
         user.setAddress(signupRequestDTO.getAddress());
 
-        // Tải lên hình ảnh đại diện và lưu URL vào trường avatar
+        // Tải lên hình ảnh đại diện nếu có
         if (signupRequestDTO.getAvatar() != null && !signupRequestDTO.getAvatar().isEmpty()) {
             String avatarUrl = cloudinaryService.uploadFile(signupRequestDTO.getAvatar());
             user.setAvatar(avatarUrl);
         }
 
+        // 3. Thiết lập các giá trị mặc định
         user.setStatus(true);
         user.setIsDeleted(false);
         user.setRoles(Collections.singleton(roleService.findByRoleName(ERole.USER)));
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
 
+        // 4. Lưu vào cơ sở dữ liệu
         userRepository.save(user);
     }
 
     @Override
-    public void registerUser(SignupRequestDTO dto) {
-        if (existsByUsernameOrEmail(dto.getUsername(), dto.getEmail())) {
-            throw new CustomException("Username or Email is already taken");
-        }
-        saveUser(dto);
-    }
-
-    @Override
     public User authenticateUser(String username, String password) {
-        User user = userRepository.findByUsername(username);
+        // Tìm người dùng theo username, nếu không có thì báo lỗi
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException("Tên đăng nhập hoặc mật khẩu không đúng."));
 
-        // So sánh password người dùng nhập với mật khẩu mã hóa trong DB
+        // So sánh password người dùng nhập với mật khẩu đã mã hóa trong DB
         if (!encoder.matches(password, user.getPassword())) {
-            throw new CustomException("Invalid username or password");
+            throw new CustomException("Tên đăng nhập hoặc mật khẩu không đúng.");
         }
 
         return user;

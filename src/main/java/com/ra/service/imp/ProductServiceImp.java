@@ -219,62 +219,58 @@ public class ProductServiceImp implements ProductService {
 
     // Danh sách sản phẩm bán chạy
     @Override
-    public Page<ProductResponseDTO> getBestSellerProducts(Pageable pageable) {
-        try {
-            List<Order> orders = orderRepository.findByStatus(EOrderStatus.SUCCESS);
+    public Page<BestSellerProductResponseDTO> getBestSellerProducts(Pageable pageable) {
+        List<OrderDetail> allOrderDetails = orderDetailRepository.findAllByOrder_Status(EOrderStatus.SUCCESS);
 
-            Map<Long, BestSellerProductResponseDTO> productMap = new HashMap<>();
+        Map<Long, BestSellerProductResponseDTO> productMap = new HashMap<>();
 
-            // Tính toán tổng số lượng bán của từng sản phẩm
-            for (Order order : orders) {
-                List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
+        for (OrderDetail detail : allOrderDetails) {
+            Product product = detail.getProduct();
+            if (product != null) {
+                BestSellerProductResponseDTO dto = productMap.getOrDefault(product.getProductId(),
+                        BestSellerProductResponseDTO.builder()
+                                .productId(product.getProductId())
+                                .productName(product.getProductName())
+                                .totalQuantity(0)
+                                .totalRevenue(0.0)
+                                .build());
 
-                for (OrderDetail orderDetail : orderDetails) {
-                    Long productId = orderDetail.getProduct().getProductId();
-                    String productName = orderDetail.getProduct().getProductName();
-                    int quantity = orderDetail.getOrderQuantity();
-
-                    BestSellerProductResponseDTO productDTO = productMap.get(productId);
-                    if (productDTO == null) {
-                        productDTO = BestSellerProductResponseDTO.builder()
-                                .productId(productId)
-                                .productName(productName)
-                                .totalQuantity(quantity)
-                                .build();
-                        productMap.put(productId, productDTO);
-                    } else {
-                        productDTO.setTotalQuantity(productDTO.getTotalQuantity() + quantity);
-                    }
-                }
+                dto.setTotalQuantity(dto.getTotalQuantity() + detail.getOrderQuantity());
+                dto.setTotalRevenue(dto.getTotalRevenue() + (detail.getUnitPrice().doubleValue() * detail.getOrderQuantity()));
+                productMap.put(product.getProductId(), dto);
             }
-
-            List<BestSellerProductResponseDTO> bestSellerProducts = new ArrayList<>(productMap.values());
-
-            // Sắp xếp danh sách theo tổng số lượng bán giảm dần
-            bestSellerProducts.sort(Comparator.comparing(BestSellerProductResponseDTO::getTotalQuantity).reversed());
-
-            // Phân trang danh sách sản phẩm bán chạy
-            int start = (int) pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), bestSellerProducts.size());
-
-            List<BestSellerProductResponseDTO> bestSellerPage = bestSellerProducts.subList(start, end);
-
-            // Chuyển đổi danh sách BestSellerProductResponseDTO thành ProductResponseDTO
-            List<ProductResponseDTO> productResponseDTOs = bestSellerPage.stream()
-                    .map(b -> {
-                        Product product = productRepository.findById(b.getProductId())
-                                .orElseThrow(() -> new CustomException("Product not found"));
-                        return ProductMapper.INSTANCE.productToProductResponseDTO(product);
-                    })
-                    .collect(Collectors.toList());
-
-            Page<ProductResponseDTO> page = new PageImpl<>(productResponseDTOs, pageable, bestSellerProducts.size());
-
-            return page;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException("An unexpected error occurred while retrieving best seller products");
         }
+
+        List<BestSellerProductResponseDTO> bestSellerProducts = new ArrayList<>(productMap.values());
+
+        // Sắp xếp danh sách theo thông tin từ Pageable
+        final Comparator<BestSellerProductResponseDTO> comparator = pageable.getSort().stream()
+                .map(order -> {
+                    Comparator<BestSellerProductResponseDTO> c = null;
+                    if (order.getProperty().equals("totalQuantity")) {
+                        c = Comparator.comparing(BestSellerProductResponseDTO::getTotalQuantity);
+                    } else if (order.getProperty().equals("totalRevenue")) {
+                        c = Comparator.comparing(BestSellerProductResponseDTO::getTotalRevenue);
+                    }
+                    return c != null && order.isDescending() ? c.reversed() : c;
+                })
+                .filter(Objects::nonNull)
+                .reduce(Comparator::thenComparing)
+                .orElse(Comparator.comparing(BestSellerProductResponseDTO::getTotalQuantity).reversed()); // Sắp xếp mặc định
+
+        bestSellerProducts.sort(comparator);
+
+        // Phân trang danh sách sản phẩm bán chạy
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), bestSellerProducts.size());
+
+        if (start > bestSellerProducts.size()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, bestSellerProducts.size());
+        }
+
+        List<BestSellerProductResponseDTO> pageContent = bestSellerProducts.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, bestSellerProducts.size());
     }
 
     //Danh sách sản phẩm theo danh mục

@@ -9,8 +9,8 @@ import lombok.*;
 @Setter
 @Builder
 public class LoginRequestDTO {
-    @NotBlank
+    @NotBlank(message = "Username cannot be blank")
     private String username;
-    @NotBlank
+    @NotBlank(message = "Password cannot be blank")
     private String password;
 }

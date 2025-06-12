@@ -53,7 +53,7 @@ public class UserController {
 
     //Thay đổi số lượng đặt hàng của 1 sản phẩm  (payload :quantity)
     @PutMapping("/cart/items/{cartItemId}")
-    public ResponseEntity<ShoppingCartResponseDTO> updateCartItem(@PathVariable Long cartItemId, @RequestBody UpdateCartItemRequest request) {
+    public ResponseEntity<ShoppingCartResponseDTO> updateCartItem(@PathVariable Long cartItemId, @Valid @RequestBody UpdateCartItemRequest request) {
         Integer quantity = request.getQuantity();
         ShoppingCartResponseDTO responseDTO = cartService.updateCartItem(cartItemId, quantity);
         return ResponseEntity.ok(responseDTO);
@@ -90,7 +90,7 @@ public class UserController {
     //Cập nhật thông tin người dùng
     @PutMapping("/account")
     public ResponseEntity<UserResponseDTO> updateAccountInfo(
-            @ModelAttribute UserRequestDTO userRequestDTO,
+            @Valid @ModelAttribute UserRequestDTO userRequestDTO,
             @RequestParam (value = "avatar", required = false) MultipartFile avatar
     ) {
         userRequestDTO.setAvatar(avatar);
@@ -100,7 +100,7 @@ public class UserController {
 
     //Thay đổi mật khẩu (payload : oldPass, newPass, confirmNewPass)
     @PutMapping("/account/change-password")
-    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequestDTO request) {
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequestDTO request) {
         userService.changePassword(request);
         return ResponseEntity.ok().build();
     }

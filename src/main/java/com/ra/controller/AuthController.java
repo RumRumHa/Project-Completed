@@ -27,27 +27,10 @@ public class AuthController {
 
     // Đăng kí tài khoản người dùng
     @PostMapping("/sign-up")
-    public ResponseEntity<MessageResponse> registerUser(
-            @RequestParam("username") @NotBlank String username,
-            @RequestParam("email") @NotBlank @Email String email,
-            @RequestParam("password") @NotBlank String password,
-            @RequestParam("fullname") @NotBlank String fullname,
-            @RequestParam("phone") @NotBlank String phone,
-            @RequestParam("address") @NotBlank String address,
-            @RequestParam("avatar") MultipartFile avatar
-    ) {
-        SignupRequestDTO signupRequestDTO = SignupRequestDTO.builder()
-                .username(username)
-                .email(email)
-                .password(password)
-                .fullname(fullname)
-                .phone(phone)
-                .address(address)
-                .avatar(avatar)
-                .build();
-        authService.registerUser(signupRequestDTO);
+    public ResponseEntity<MessageResponse> registerUser(@Valid @ModelAttribute SignupRequestDTO signupRequestDTO) {
+        authService.register(signupRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new MessageResponse("User registered successfully!"));
+                .body(new MessageResponse("Đăng ký tài khoản thành công!"));
     }
 
     // Đăng nhập tài khoản

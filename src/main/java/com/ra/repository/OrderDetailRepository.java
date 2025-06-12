@@ -1,5 +1,6 @@
 package com.ra.repository;
 
+import com.ra.model.entity.EOrderStatus;
 import com.ra.model.entity.OrderDetail;
 import com.ra.model.entity.OrderDetailId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,5 @@ import java.util.List;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, OrderDetailId> {
     List<OrderDetail> findByOrderId(Long orderId);
+    List<OrderDetail> findAllByOrder_Status(EOrderStatus status);
 }

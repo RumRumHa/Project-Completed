@@ -3,6 +3,7 @@ package com.ra.controller;
 import com.ra.model.dto.response.BestSellerProductResponseDTO;
 import com.ra.model.dto.response.ProductResponseDTO;
 import com.ra.model.dto.response.UserResponseDTO;
+import com.ra.model.dto.request.ProductRequestDTO;
 import com.ra.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/v1/products")
@@ -76,7 +80,7 @@ public class ProductController {
 
     //Danh sách sản phẩm bán chạy
     @GetMapping("/best-seller-products")
-    public ResponseEntity<Page<ProductResponseDTO>> getBestSellerProducts(
+    public ResponseEntity<Page<BestSellerProductResponseDTO>> getBestSellerProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "totalQuantity") String sortBy,
@@ -103,5 +107,19 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
+    }
+
+    //Thêm mới sản phẩm
+    @PostMapping
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @ModelAttribute ProductRequestDTO productRequestDTO) {
+        ProductResponseDTO newProduct = productService.addProduct(productRequestDTO);
+        return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
+    }
+
+    //Cập nhật sản phẩm
+    @PutMapping("/{productId}")
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long productId, @Valid @ModelAttribute ProductRequestDTO productRequestDTO) {
+        ProductResponseDTO updatedProduct = productService.updateProduct(productId, productRequestDTO);
+        return ResponseEntity.ok(updatedProduct);
     }
 }

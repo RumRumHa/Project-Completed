@@ -181,7 +181,7 @@ public class ReportServiceImp implements ReportService {
         Integer targetMonth = (month != null) ? month : currentYearMonth.getMonthValue();
 
         // Lấy danh sách người dùng được tạo trong tháng và năm cụ thể
-        List<User> users = userRepository.findByCreatedAtYearAndMonth(targetYear, targetMonth);
+        List<User> users = userRepository.findByMonthAndYear(targetMonth, targetYear);
 
         // Chuyển đổi danh sách User thành danh sách UserResponseDTO
         return users.stream()

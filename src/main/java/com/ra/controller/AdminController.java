@@ -95,7 +95,7 @@ public class AdminController {
                 .address(address)
                 .avatar(avatar)
                 .build();
-        authService.registerUser(signupRequestDTO);
+        authService.register(signupRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("User created successfully!"));
     }

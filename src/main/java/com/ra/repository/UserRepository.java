@@ -1,6 +1,5 @@
 package com.ra.repository;
 
-import com.ra.model.entity.Product;
 import com.ra.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,17 +13,21 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    User findByUsername(String username);
-    User findByEmail(String email);
-    Optional<User> findByUsernameAndPassword(String username, String password);
-    Page<User> findAll(Pageable pageable);
+    Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByPhone(String phone);
+
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    boolean existsByPhone(String phone);
 
     Page<User> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
+
     @Query("SELECT u FROM User u WHERE YEAR(u.createdAt) = :year AND MONTH(u.createdAt) = :month")
-    List<User> findByCreatedAtYearAndMonth(@Param("year") Integer year, @Param("month") Integer month);
+    List<User> findByMonthAndYear(@Param("month") Integer month, @Param("year") Integer year);
+    // Restore methods needed by UserServiceImp
     Page<User> findByIsDeletedFalse(Pageable pageable);
+
     @Query(value = "SELECT * FROM users " +
             "WHERE (LOWER(remove_accents(username)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')) " +
             "OR LOWER(remove_accents(fullname)) LIKE LOWER(CONCAT('%', remove_accents(:keyword), '%')))" +

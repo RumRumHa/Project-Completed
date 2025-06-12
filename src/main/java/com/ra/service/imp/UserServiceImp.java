@@ -150,18 +150,29 @@ public class UserServiceImp implements UserService {
     public UserResponseDTO updateUserAccountInfo(UserRequestDTO userRequestDTO) throws CustomException {
         try {
             User user = getCurrentUser();
-            // Cập nhật thông tin người dùng từ userResponseDTO
+
+            // Kiểm tra email có bị trùng với người dùng khác không
+            if (userRequestDTO.getEmail() != null && !userRequestDTO.getEmail().equals(user.getEmail())) {
+                if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
+                    throw new CustomException("Email đã được một tài khoản khác sử dụng.");
+                }
+                user.setEmail(userRequestDTO.getEmail());
+            }
+
+            // Kiểm tra phone có bị trùng với người dùng khác không
+            if (userRequestDTO.getPhone() != null && !userRequestDTO.getPhone().equals(user.getPhone())) {
+                if (userRepository.existsByPhone(userRequestDTO.getPhone())) {
+                    throw new CustomException("Số điện thoại đã được tài khoản khác sử dụng.");
+                }
+                user.setPhone(userRequestDTO.getPhone());
+            }
+
+            // Cập nhật các trường khác
             if (userRequestDTO.getUsername() != null && !userRequestDTO.getUsername().isEmpty()) {
                 user.setUsername(userRequestDTO.getUsername());
             }
-            if (userRequestDTO.getEmail() != null && !userRequestDTO.getEmail().isEmpty()) {
-                user.setEmail(userRequestDTO.getEmail());
-            }
             if (userRequestDTO.getFullname() != null && !userRequestDTO.getFullname().isEmpty()) {
                 user.setFullname(userRequestDTO.getFullname());
-            }
-            if (userRequestDTO.getPhone() != null && !userRequestDTO.getPhone().isEmpty()) {
-                user.setPhone(userRequestDTO.getPhone());
             }
             if (userRequestDTO.getAddress() != null && !userRequestDTO.getAddress().isEmpty()) {
                 user.setAddress(userRequestDTO.getAddress());
@@ -171,12 +182,11 @@ public class UserServiceImp implements UserService {
                 user.setAvatar(avatarUrl);
             }
 
-            userRepository.save(user);
-            return UserMapper.INSTANCE.userToUserResponseDTO(user);
+            User updatedUser = userRepository.save(user);
+            return UserMapper.INSTANCE.userToUserResponseDTO(updatedUser);
         } catch (CustomException ce) {
             throw ce;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new CustomException("An unexpected error occurred while updating user info");
         }
     }
@@ -188,20 +198,17 @@ public class UserServiceImp implements UserService {
             User user = getCurrentUser();
 
             // Kiểm tra mật khẩu cũ
-            if (!passwordEncoder.matches(request.getOldPass(), user.getPassword())) {
+            if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
                 throw new CustomException("Old password is incorrect");
             }
 
             // Kiểm tra mật khẩu mới và xác nhận mật khẩu mới
-            if (request.getNewPass() == null || request.getNewPass().isEmpty()) {
-                throw new CustomException("New password cannot be empty");
-            }
-            if (!request.getNewPass().equals(request.getConfirmNewPass())) {
+            if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
                 throw new CustomException("New password and confirm password do not match");
             }
 
             // Cập nhật mật khẩu mới
-            user.setPassword(passwordEncoder.encode(request.getNewPass()));
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
             userRepository.save(user);
         } catch (CustomException ce) {
             throw ce;
@@ -238,18 +245,28 @@ public class UserServiceImp implements UserService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException("User not found"));
 
-            // Cập nhật thông tin người dùng từ userRequestDTO
+            // Kiểm tra email có bị trùng với người dùng khác không
+            if (userRequestDTO.getEmail() != null && !userRequestDTO.getEmail().equals(user.getEmail())) {
+                if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
+                    throw new CustomException("Email đã được một tài khoản khác sử dụng.");
+                }
+                user.setEmail(userRequestDTO.getEmail());
+            }
+
+            // Kiểm tra phone có bị trùng với người dùng khác không
+            if (userRequestDTO.getPhone() != null && !userRequestDTO.getPhone().equals(user.getPhone())) {
+                if (userRepository.existsByPhone(userRequestDTO.getPhone())) {
+                    throw new CustomException("Số điện thoại đã được tài khoản khác sử dụng.");
+                }
+                user.setPhone(userRequestDTO.getPhone());
+            }
+
+            // Cập nhật các trường khác
             if (userRequestDTO.getUsername() != null && !userRequestDTO.getUsername().isEmpty()) {
                 user.setUsername(userRequestDTO.getUsername());
             }
-            if (userRequestDTO.getEmail() != null && !userRequestDTO.getEmail().isEmpty()) {
-                user.setEmail(userRequestDTO.getEmail());
-            }
             if (userRequestDTO.getFullname() != null && !userRequestDTO.getFullname().isEmpty()) {
                 user.setFullname(userRequestDTO.getFullname());
-            }
-            if (userRequestDTO.getPhone() != null && !userRequestDTO.getPhone().isEmpty()) {
-                user.setPhone(userRequestDTO.getPhone());
             }
             if (userRequestDTO.getAddress() != null && !userRequestDTO.getAddress().isEmpty()) {
                 user.setAddress(userRequestDTO.getAddress());
@@ -259,8 +276,8 @@ public class UserServiceImp implements UserService {
                 user.setAvatar(avatarUrl);
             }
 
-            userRepository.save(user);
-            return UserMapper.INSTANCE.userToUserResponseDTO(user);
+            User updatedUser = userRepository.save(user);
+            return UserMapper.INSTANCE.userToUserResponseDTO(updatedUser);
         } catch (CustomException ce) {
             throw ce;
         } catch (Exception e) {

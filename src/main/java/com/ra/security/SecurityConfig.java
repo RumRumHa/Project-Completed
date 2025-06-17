@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .cors(cf -> cf.configurationSource(request ->
                 {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "http://localhost:5175")); // phụ thuộc vào port clents
+                    config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "https://project-completed.onrender.com")); // phụ thuộc vào port clents
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(List.of("*"));
